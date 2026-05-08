@@ -1102,11 +1102,47 @@ footer { background:var(--navy); padding:3rem; }
         <p>Sign in to manage your home</p>
       </div>
       <div class="login-body">
-        <div class="login-error" id="loginError">Invalid email or password. Please try again.</div>
-        <div class="lf-group"><label>Email Address</label><input type="email" id="loginEmail" placeholder="you@email.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
-        <div class="lf-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-        <div class="login-forgot"><a href="#" onclick="showForgotPassword()">Forgot password?</a></div>
-        <button class="login-btn" onclick="doLogin()">Sign In to Portal</button>
+        <div class="login-body">
+
+  <div class="auth-tabs">
+    <button id="tab-login" class="auth-tab active">Log In</button>
+    <button id="tab-signup" class="auth-tab">Create Account</button>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <div id="login-form" class="auth-body">
+    <div class="lf-group">
+      <label>Email Address</label>
+      <input type="email" id="login-email" placeholder="you@example.com">
+    </div>
+
+    <div class="lf-group">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••">
+    </div>
+
+    <button class="login-btn" id="login-btn">Log In</button>
+  </div>
+
+  <!-- SIGNUP FORM -->
+  <div id="signup-form" class="auth-body" style="display:none;">
+    <div class="lf-group">
+      <label>Email Address</label>
+      <input type="email" id="signup-email" placeholder="you@example.com">
+    </div>
+
+    <div class="lf-group">
+      <label>Password</label>
+      <input type="password" id="signup-password" placeholder="Create a password">
+    </div>
+
+    <button class="login-btn" id="signup-btn">Create Account</button>
+  </div>
+
+  <div id="auth-message" class="login-error"></div>
+
+</div>
+
       </div>
     </div>
   </div>
