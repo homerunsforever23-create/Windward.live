@@ -1,10 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Windward Properties</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --navy:      #0b1f3a;
+  --navy2:     #112948;
+  --blue:      #1a4a7a;
+  --mid:       #2563a8;
+  --sky:       #3b82c4;
+  --accent:    #0ea5e9;
+  --light:     #dbeafe;
+  --pale:      #f0f6ff;
+  --white:     #ffffff;
+  --slate:     #64748b;
+  --text:      #1e293b;
+  --border:    #e2e8f0;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--pale);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+}
+
+/* HEADER */
+header {
+  background: var(--navy);
+  padding: 20px;
+  color: var(--white);
+  text-align: center;
+}
+
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  margin: 0;
+}
+
+/* DASHBOARD CONTAINER */
+.dashboard-container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: var(--white);
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.dashboard-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: var(--navy);
+}
+
+.dashboard-sub {
+  font-size: 16px;
+  color: var(--slate);
+  margin-bottom: 30px;
+}
+
+/* BUTTON */
+button {
+  background: var(--mid);
+  color: var(--white);
+  padding: 12px 22px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: var(--blue);
+}
+</style>
 </head>
+
 <body>
-  <h1>Welcome to your dashboard</h1>
+
+<header>
+  <h1>Windward Properties</h1>
+</header>
+
+<div class="dashboard-container">
+  <h2 class="dashboard-title">Welcome</h2>
+  <p class="dashboard-sub">You are now logged in to your Windward Properties dashboard.</p>
+
+  <button id="logout-btn">Log Out</button>
+</div>
+
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+  const supabase = createClient(
+    "https://ljlpnigkeiseehsfectn.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqbHBuaWdrZWlzZWVoc2ZlY3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNzMyMzgsImV4cCI6MjA5Mzc0OTIzOH0.jGgYuUyTZ7X6tZhDbX2BEPt7pokUIq9el5N2GsYkjnU"
+  );
+
+  // Redirect to homepage if not logged in
+  supabase.auth.getSession().then(({ data }) => {
+    if (!data.session) {
+      window.location.href = "/";
+    }
+  });
+
+  // Logout button
+  document.getElementById("logout-btn").addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  });
+</script>
+
 </body>
 </html>
 
