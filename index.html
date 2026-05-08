@@ -2195,7 +2195,6 @@ function setActiveCard(i) {
 })();
 </script>
    <script type="module">
-<script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
   const supabase = createClient(
@@ -2283,11 +2282,62 @@ function setActiveCard(i) {
       return;
     }
 
-    // SUCCESS → redirect to dashboard
     window.location.href = "/dashboard.html";
   });
-</script>
 
+  // -----------------------------
+  // INVITE LINK HANDLER
+  // -----------------------------
+  document.addEventListener("DOMContentLoaded", async () => {
+    const hash = window.location.hash;
+
+    if (hash.includes("type=invite")) {
+      const params = new URLSearchParams(hash.substring(1));
+
+      const access_token = params.get("access_token");
+      const refresh_token = params.get("refresh_token");
+
+      const { error } = await supabase.auth.setSession({
+        access_token,
+        refresh_token
+      });
+
+      if (error) {
+        console.error("Invite session error:", error);
+        return;
+      }
+
+      document.getElementById("portal-login-screen").style.display = "none";
+      document.getElementById("portal-setpassword-screen").style.display = "flex";
+    }
+  });
+
+  // -----------------------------
+  // SET PASSWORD
+  // -----------------------------
+  document
+    .querySelector("#portal-setpassword-screen .login-btn")
+    ?.addEventListener("click", async () => {
+      const newPass = document.getElementById("newPass").value;
+      const confirmPass = document.getElementById("confirmPass").value;
+
+      if (newPass !== confirmPass) {
+        document.getElementById("setPassError").classList.add("show");
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({
+        password: newPass
+      });
+
+      if (error) {
+        document.getElementById("setPassError").textContent = error.message;
+        document.getElementById("setPassError").classList.add("show");
+        return;
+      }
+
+      window.location.href = "/dashboard.html";
+    });
 </script>
 
 </body>
