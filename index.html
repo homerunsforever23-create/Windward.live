@@ -2168,5 +2168,41 @@ function setActiveCard(i) {
   document.head.appendChild(s);
 })();
 </script>
+   <script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+  const supabase = createClient(
+    "https://ljlpnigkeiseehsfectn.supabase.co",
+    "YOUR_PUBLIC_ANON_KEY"
+  );
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const url = window.location.href;
+
+    // If this is a Supabase auth callback
+    if (url.includes("code=")) {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(url);
+
+      if (error) {
+        console.error("Auth error:", error);
+        return;
+      }
+
+      // Get the logged-in user
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+
+      // Create or update profile
+      await supabase.from("profiles").upsert({
+        id: user.id,
+        email: user.email
+      });
+
+      // Redirect to dashboard
+      window.location.href = "/dashboard.html";
+    }
+  });
+</script>
+   
 </body>
 </html>
