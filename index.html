@@ -2195,6 +2195,7 @@ function setActiveCard(i) {
 })();
 </script>
    <script type="module">
+<script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
   const supabase = createClient(
@@ -2202,32 +2203,91 @@ function setActiveCard(i) {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqbHBuaWdrZWlzZWVoc2ZlY3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNzMyMzgsImV4cCI6MjA5Mzc0OTIzOH0.jGgYuUyTZ7X6tZhDbX2BEPt7pokUIq9el5N2GsYkjnU"
   );
 
-  console.log("Script loaded");
+  // -----------------------------
+  // TAB SWITCHING
+  // -----------------------------
+  const tabLogin = document.getElementById("tab-login");
+  const tabSignup = document.getElementById("tab-signup");
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
+  const authMessage = document.getElementById("auth-message");
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    const hash = window.location.hash;
-
-    if (hash.includes("access_token")) {
-      const params = new URLSearchParams(hash.substring(1));
-
-      const access_token = params.get("access_token");
-      const refresh_token = params.get("refresh_token");
-
-      const { data, error } = await supabase.auth.setSession({
-        access_token,
-        refresh_token
-      });
-
-      if (error) {
-        console.error("Session error:", error);
-        return;
-      }
-
-      console.log("User logged in:", data);
-
-      window.location.href = "/dashboard.html";
-    }
+  tabLogin.addEventListener("click", () => {
+    tabLogin.classList.add("active");
+    tabSignup.classList.remove("active");
+    loginForm.style.display = "flex";
+    signupForm.style.display = "none";
+    authMessage.textContent = "";
+    authMessage.classList.remove("show");
   });
+
+  tabSignup.addEventListener("click", () => {
+    tabSignup.classList.add("active");
+    tabLogin.classList.remove("active");
+    signupForm.style.display = "flex";
+    loginForm.style.display = "none";
+    authMessage.textContent = "";
+    authMessage.classList.remove("show");
+  });
+
+  // -----------------------------
+  // SIGNUP
+  // -----------------------------
+  document.getElementById("signup-btn").addEventListener("click", async () => {
+    const email = document.getElementById("signup-email").value.trim();
+    const password = document.getElementById("signup-password").value;
+
+    authMessage.textContent = "";
+    authMessage.classList.remove("show");
+
+    if (!email || !password) {
+      authMessage.textContent = "Please enter email and password.";
+      authMessage.classList.add("show");
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({ email, password });
+
+    if (error) {
+      authMessage.textContent = error.message;
+      authMessage.classList.add("show");
+      return;
+    }
+
+    authMessage.textContent = "Account created! You can now log in.";
+    authMessage.classList.add("show");
+    tabLogin.click();
+  });
+
+  // -----------------------------
+  // LOGIN
+  // -----------------------------
+  document.getElementById("login-btn").addEventListener("click", async () => {
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+
+    authMessage.textContent = "";
+    authMessage.classList.remove("show");
+
+    if (!email || !password) {
+      authMessage.textContent = "Please enter email and password.";
+      authMessage.classList.add("show");
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      authMessage.textContent = error.message;
+      authMessage.classList.add("show");
+      return;
+    }
+
+    // SUCCESS → redirect to dashboard
+    window.location.href = "/dashboard.html";
+  });
+</script>
+
 </script>
 
 </body>
