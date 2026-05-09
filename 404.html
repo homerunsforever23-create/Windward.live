@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script>
+  // Preserve the hash and redirect to index
+  var hash = window.location.hash;
+  var search = window.location.search;
+  var path = window.location.pathname;
+  
+  // Store the hash in sessionStorage so index.html can pick it up
+  if (hash && hash.includes('access_token')) {
+    sessionStorage.setItem('supabase_redirect', hash);
+  }
+  
+  window.location.replace(
+    window.location.origin + '/' + 
+    (search ? search + '&' : '?') + 
+    'p=' + encodeURIComponent(path) +
+    hash
+  );
+</script>
+</head>
+<body>Redirecting...</body>
+</html>
