@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Windward — Authenticating</title>
+</head>
+<body>
+<script>
+var hash = window.location.hash;
+if (hash && hash.indexOf('access_token') !== -1) {
+  var parts = hash.substring(1).split('&');
+  var p = {};
+  parts.forEach(function(part) {
+    var idx = part.indexOf('=');
+    if (idx > -1) {
+      p[part.substring(0, idx)] = decodeURIComponent(part.substring(idx + 1));
+    }
+  });
+  if (p['access_token']) {
+    sessionStorage.setItem('sb_access_token',  p['access_token']);
+    sessionStorage.setItem('sb_refresh_token', p['refresh_token'] || '');
+    sessionStorage.setItem('sb_token_type',    p['type'] || '');
+  }
+}
+window.location.replace('https://windward.live/');
+</script>
+<p>Authenticating, please wait...</p>
+</body>
+</html>
