@@ -795,7 +795,6 @@ footer { background:var(--navy); padding:3rem; }
           </div>
           <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.4rem;">📍 1775 Franklin Street</div>
           <div style="font-size:0.78rem;color:var(--slate);">Northampton, PA 18067</div>
-          <span class="badge-leasing prop-badge" style="margin-top:0.7rem;">Leasing Soon</span>
         </div>
         <div class="reveal d2 loc-card" onclick="focusPin(2)" style="background:white;border-radius:12px;padding:1.3rem 1.5rem;border:2px solid var(--border);cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;">
           <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.6rem;">
@@ -804,7 +803,6 @@ footer { background:var(--navy); padding:3rem; }
           </div>
           <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.4rem;">📍 917 Main Street</div>
           <div style="font-size:0.78rem;color:var(--slate);">Walnutport, PA 18088</div>
-          <span class="badge-available prop-badge" style="margin-top:0.7rem;">Available Now</span>
         </div>
       </div>
 
@@ -2074,42 +2072,116 @@ function switchDocTab(name, el) {
 }
 
 /* ═══════════════════════════════════
-   DOCUSIGN MODAL
+   DOCUSIGN INTEGRATION
 ═══════════════════════════════════ */
-function openDocModal(title) {
-  document.getElementById('modalDocTitle').textContent = title;
-  document.getElementById('docModal').classList.add('show');
-  clearSignature();
+const DOCUSIGN_FUNCTION_URL = 'https://ljlpnigkeiseehsfectn.supabase.co/functions/v1/docusign';
+
+async function openDocModal(docName) {
+  // If no tenant logged in fall back to demo modal
+  if (!window._windwardTenantId) {
+    document.getElementById('modalDocTitle').textContent = docName;
+    document.getElementById('docModal').classList.add('show');
+    clearSignature();
+    return;
+  }
+
+  // Get tenant info
+  const tenantName  = window._tenantFullName;
+  const tenantEmail = window._tenantEmail;
+
+  if (!tenantName || !tenantEmail) {
+    showToast('⚠️ Could not load your info. Please log out and back in.');
+    return;
+  }
+
+  showToast('📋 Opening DocuSign... please wait.');
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch(DOCUSIGN_FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({
+        action:      'send',
+        tenantName,
+        tenantEmail
+      })
+    });
+
+    const result = await res.json();
+
+    if (result.error) {
+      showToast(`❌ DocuSign error: ${result.error}`);
+      return;
+    }
+
+    // Store envelope ID for status tracking
+    window._currentEnvelopeId = result.envelopeId;
+
+    // Open signing URL in popup
+    const popup = window.open(
+      result.signingUrl,
+      'DocuSign',
+      'width=900,height=700,scrollbars=yes,resizable=yes'
+    );
+
+    // Poll for completion
+    const pollInterval = setInterval(async () => {
+      if (popup.closed) {
+        clearInterval(pollInterval);
+        // Check status
+        await checkDocuSignStatus(result.envelopeId);
+      }
+    }, 2000);
+
+  } catch (err) {
+    showToast('❌ Could not connect to DocuSign. Please try again.');
+    console.error('DocuSign error:', err);
+  }
 }
-function closeDocModal() { document.getElementById('docModal').classList.remove('show'); }
-function applySignature() {
-  const pad = document.getElementById('signPad');
-  const btn = document.getElementById('confirmSignBtn');
-  const clr = document.getElementById('sigClear');
-  pad.classList.add('signed');
-  btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
-  clr.style.display = 'block';
-}
-function clearSignature() {
-  const pad = document.getElementById('signPad');
-  const btn = document.getElementById('confirmSignBtn');
-  const clr = document.getElementById('sigClear');
-  pad.classList.remove('signed');
-  btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed';
-  clr.style.display = 'none';
-}
-function confirmSign() {
-  closeDocModal();
-  // Clear pending
-  const pending = document.querySelector('#docpanel-pending .doc-list');
-  if (pending) pending.innerHTML = '<div style="text-align:center;padding:2.5rem;color:var(--muted);font-size:0.9rem;"><div style="font-size:2.5rem;margin-bottom:0.8rem;">✅</div><strong style="color:var(--navy);">All documents signed!</strong><br>You have no pending signatures.</div>';
-  // Hide badges
-  setBadge('docBadge', 0);
-  setBadge('pendingBadgeTab', 0);
-  // Update dashboard notice
-  const notice = document.getElementById('dashNotice');
-  if (notice) { notice.style.background='#f0fdf4'; notice.style.borderLeftColor='var(--success)'; notice.querySelector('p').innerHTML='<strong>All caught up!</strong> Your lease renewal has been signed successfully. Thank you!'; }
-  showToast('✅ Lease signed successfully! A copy has been emailed to you.');
+
+async function checkDocuSignStatus(envelopeId) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch(DOCUSIGN_FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({ action: 'status', envelopeId })
+    });
+
+    const result = await res.json();
+
+    if (result.status === 'completed') {
+      showToast('✅ Document signed successfully! A copy has been emailed to you.');
+
+      // Update document in Supabase
+      if (window._windwardTenantId) {
+        await supabase.from('documents').upsert({
+          tenant_id:            window._windwardTenantId,
+          name:                 'Lease Agreement',
+          document_type:        'lease',
+          docusign_envelope_id: envelopeId,
+          status:               'completed',
+          signed_at:            new Date().toISOString()
+        });
+
+        // Reload documents
+        await loadDocuments(window._windwardTenantId);
+        setBadge('docBadge', 0);
+        setBadge('pendingBadgeTab', 0);
+      }
+    } else if (result.status === 'sent' || result.status === 'delivered') {
+      showToast('📋 Document sent but not yet signed. Check your email to complete signing.');
+    }
+  } catch (err) {
+    console.error('Status check error:', err);
+  }
 }
 
 /* ═══════════════════════════════════
@@ -2133,6 +2205,24 @@ function setBadge(id, count) {
   } else {
     el.style.display = 'none';
   }
+}
+
+function closeDocModal() { document.getElementById('docModal').classList.remove('show'); }
+function clearSignature() {
+  const pad = document.getElementById('signPad');
+  const btn = document.getElementById('confirmSignBtn');
+  const clr = document.getElementById('sigClear');
+  if (pad) pad.classList.remove('signed');
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed'; }
+  if (clr) clr.style.display = 'none';
+}
+function applySignature() {
+  const pad = document.getElementById('signPad');
+  const btn = document.getElementById('confirmSignBtn');
+  const clr = document.getElementById('sigClear');
+  if (pad) pad.classList.add('signed');
+  if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
+  if (clr) clr.style.display = 'block';
 }
 
 // Close modal on overlay click
@@ -2354,9 +2444,9 @@ function switchNbh(cat, el) {
 <!-- Google Maps -->
 <script>
 const WINDWARD_LOCATIONS = [
-  { lat: 40.6856, lng: -75.4970, title: 'Carriage House', address: '1796 Main St, Northampton, PA', status: 'Available Now', num: 1 },
-  { lat: 40.68711090000001, lng: -75.4983839, title: 'The Barn Apartments', address: '1775 Franklin St, Northampton, PA', status: 'Leasing Soon', num: 2 },
-  { lat: 40.7480556, lng: -75.61127479999999, title: 'Windward on the Green', address: '917 Main St, Walnutport, PA', status: 'Available Now', num: 3 }
+  { lat: 40.6856, lng: -75.4970, title: 'Carriage House', address: '1796 Main St, Northampton, PA', num: 1 },
+  { lat: 40.68711090000001, lng: -75.4983839, title: 'The Barn Apartments', address: '1775 Franklin St, Northampton, PA', num: 2 },
+  { lat: 40.7480556, lng: -75.61127479999999, title: 'Windward on the Green', address: '917 Main St, Walnutport, PA', num: 3 }
 ];
 
 let windwardMap, windwardMarkers = [], windwardInfoWindows = [];
@@ -2403,14 +2493,11 @@ function initWindwardMap() {
       }
     });
 
-    const statusColor = loc.status === 'Available Now' ? '#065f46' : '#1e40af';
-    const statusBg   = loc.status === 'Available Now' ? '#d1fae5'  : '#dbeafe';
     const infoWindow = new google.maps.InfoWindow({
       content: `
-        <div style="font-family:Nunito,sans-serif;padding:0.4rem 0.2rem;min-width:200px;">
+        <div style="font-family:Nunito,sans-serif;padding:0.4rem 0.2rem;min-width:180px;">
           <div style="font-weight:800;font-size:0.95rem;color:#0b1f3a;margin-bottom:0.3rem;">${loc.title}</div>
-          <div style="font-size:0.8rem;color:#64748b;margin-bottom:0.5rem;">📍 ${loc.address}</div>
-          <span style="background:${statusBg};color:${statusColor};font-size:0.68rem;font-weight:800;padding:0.2rem 0.6rem;border-radius:999px;">${loc.status}</span>
+          <div style="font-size:0.8rem;color:#64748b;">📍 ${loc.address}</div>
         </div>`
     });
 
