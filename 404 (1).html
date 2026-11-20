@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>Windward Properties</title>
+<style>
+  body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#0b1f3a;color:#fff;
+       display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center}
+  a{color:#7dd3fc}
+</style>
+</head>
+<body>
+<script>
+(function () {
+  var hash = window.location.hash || '';
+  var path = window.location.pathname || '/';
+
+  // Loop guard: if this file is ever served for the site root (e.g. index.html
+  // is missing or misnamed), redirecting to "/" would bounce back here forever.
+  // Stop and show a message instead.
+  if (path === '/' || path === '/index.html') return;
+
+  // Safety net: if a Supabase auth link ever lands on an unknown path, forward
+  // the token to auth.html, which is what actually knows how to consume it.
+  if (hash.indexOf('access_token') !== -1) {
+    window.location.replace('https://windward.live/auth.html' + hash);
+    return;
+  }
+
+  // Anything else: plain redirect to the homepage. No query string is added —
+  // nothing in the site reads one, so appending it only produced confusing URLs.
+  window.location.replace('https://windward.live/');
+})();
+</script>
+<noscript><p>Page not found. <a href="https://windward.live/">Return to Windward Properties</a></p></noscript>
+<p>Page not found. <a href="https://windward.live/">Return to Windward Properties</a></p>
+</body>
+</html>

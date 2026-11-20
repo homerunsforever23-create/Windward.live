@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windward Properties — Northampton County, PA</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- EARLY TOKEN DETECTION — runs before anything else -->
+<script>
+(function() {
+  try {
+    // Check URL query params first (passed by auth.html)
+    var search = window.location.search;
+    if (search && search.indexOf('sb_at=') !== -1) {
+      var urlParams = new URLSearchParams(search);
+      var at = urlParams.get('sb_at');
+      var rt = urlParams.get('sb_rt');
+      var type = urlParams.get('sb_type');
+      if (at) {
+        sessionStorage.setItem('sb_access_token',  at);
+        sessionStorage.setItem('sb_refresh_token', rt || '');
+        sessionStorage.setItem('sb_token_type',    type || '');
+        // Clean the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      return;
+    }
+    // Fallback: check hash directly (in case no auth.html redirect)
+    var hash = window.location.hash;
+    if (hash && hash.indexOf('access_token') !== -1) {
+      var parts = hash.substring(1).split('&');
+      var p = {};
+      parts.forEach(function(part) {
+        var idx = part.indexOf('=');
+        if (idx > -1) {
+          p[part.substring(0, idx)] = decodeURIComponent(part.substring(idx + 1));
+        }
+      });
+      if (p['access_token']) {
+        sessionStorage.setItem('sb_access_token',  p['access_token']);
+        sessionStorage.setItem('sb_refresh_token', p['refresh_token'] || '');
+        sessionStorage.setItem('sb_token_type',    p['type'] || '');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   SHARED VARIABLES & RESET
+═══════════════════════════════════════════ */
+:root {
+  --navy:      #0b1f3a;
+  --navy2:     #112948;
+  --blue:      #1a4a7a;
+  --mid:       #2563a8;
+  --sky:       #3b82c4;
+  --accent:    #0ea5e9;
+  --light:     #dbeafe;
+  --pale:      #f0f6ff;
+  --white:     #ffffff;
+  --slate:     #64748b;
+  --text:      #1e293b;
+  --muted:     #64748b;
+  --border:    #e2e8f0;
+  --border2:   #cbd5e1;
+  --success:   #10b981;
+  --warning:   #f59e0b;
+  --error:     #ef4444;
+  --sidebar-w: 260px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--white);color:var(--text);overflow-x:hidden;}
+
+/* ═══════════════════════════════════════════
+   VIEW SYSTEM — switches between public & portal
+═══════════════════════════════════════════ */
+.view { display: none; }
+.view.active { display: block; }
+#view-portal.active { display: flex; flex-direction: column; min-height: 100vh; }
+#view-property.active { display: block; }
+#view-properties.active { display: block; }
+#view-employee.active { display: block; }
+#view-admin.active { display: block; }
+#view-privacy.active { display: block; }
+
+/* Page transition overlay */
+#transition-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--navy);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+#transition-overlay.fade-in  { opacity: 1; pointer-events: all; }
+#transition-overlay.fade-out { opacity: 0; pointer-events: none; }
+
+/* ═══════════════════════════════════════════
+   PUBLIC SITE — NAV
+═══════════════════════════════════════════ */
+#public-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 3rem;
+  transition: background 0.4s, box-shadow 0.4s;
+}
+#public-nav.scrolled {
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.07);
+}
+.logo {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 700;
+  color: white; letter-spacing: 0.01em;
+  transition: color 0.4s; text-decoration: none; cursor: pointer;
+}
+#public-nav.scrolled .logo { color: var(--navy); }
+.logo-icon {
+  width: 38px; height: 38px;
+  background: #0b1f3a;
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+  overflow: hidden;
+}
+.nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+.nav-links a {
+  font-size: 0.82rem; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase; color: rgba(255,255,255,0.85);
+  text-decoration: none; transition: color 0.2s; cursor: pointer;
+}
+#public-nav.scrolled .nav-links a { color: var(--slate); }
+.nav-links a:hover { color: var(--accent) !important; }
+.nav-portal-btn {
+  background: var(--accent) !important; color: white !important;
+  padding: 0.55rem 1.3rem; border-radius: 6px; font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(14,165,233,0.3);
+  transition: background 0.2s, transform 0.2s !important;
+}
+.nav-portal-btn:hover { background: var(--sky) !important; transform: translateY(-1px); }
+
+/* ═══════════════════════════════════════════
+   PUBLIC — HERO
+═══════════════════════════════════════════ */
+.hero {
+  position: relative; height: 100vh; min-height: 680px;
+  display: flex; align-items: center; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(105deg, rgba(11,31,58,0.88) 0%, rgba(11,31,58,0.5) 55%, rgba(11,31,58,0.3) 100%),
+    url('https://images.unsplash.com/photo-1460317442991-0ec209397118?w=1800&q=80') center/cover no-repeat;
+  animation: heroZoom 14s ease-out forwards;
+}
+@keyframes heroZoom { from{transform:scale(1.06);} to{transform:scale(1);} }
+.hero-content {
+  position: relative; z-index: 2;
+  padding: 0 3rem; max-width: 700px;
+  animation: heroFade 1s ease-out 0.3s both;
+}
+@keyframes heroFade { from{opacity:0;transform:translateY(28px);} to{opacity:1;transform:translateY(0);} }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(14,165,233,0.2); border: 1px solid rgba(14,165,233,0.4);
+  color: #7dd3fc; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; padding: 0.35rem 1rem;
+  border-radius: 999px; margin-bottom: 1.4rem;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.8rem, 6vw, 5.2rem);
+  font-weight: 700; line-height: 1.05;
+  color: white; margin-bottom: 1.2rem; letter-spacing: -0.01em;
+}
+.hero h1 em { font-style: italic; color: #7dd3fc; }
+.hero-sub {
+  font-size: 1.05rem; font-weight: 400;
+  color: rgba(255,255,255,0.72); line-height: 1.7;
+  max-width: 520px; margin-bottom: 2.2rem;
+}
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+.btn-primary {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--mid), var(--sky));
+  color: white; padding: 0.9rem 2.2rem; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; text-decoration: none;
+  box-shadow: 0 6px 20px rgba(37,99,168,0.4);
+  transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
+  border: none; font-family: 'Nunito', sans-serif;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(37,99,168,0.5); }
+.btn-ghost {
+  display: inline-block;
+  border: 2px solid rgba(255,255,255,0.45);
+  color: white; padding: 0.88rem 2.2rem; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; text-decoration: none;
+  backdrop-filter: blur(8px); cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  font-family: 'Nunito', sans-serif; background: transparent;
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.12); border-color: white; }
+.hero-scroll {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  color: rgba(255,255,255,0.4); font-size: 0.62rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.scroll-bar {
+  width: 1px; height: 44px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+  animation: scrollAnim 2.2s ease-in-out infinite;
+}
+@keyframes scrollAnim { 0%,100%{opacity:0.3;transform:scaleY(1);} 50%{opacity:1;transform:scaleY(0.55);} }
+
+/* ═══════════════════════════════════════════
+   PUBLIC — STATS, SECTIONS, CARDS
+═══════════════════════════════════════════ */
+.stats-bar { background: var(--navy); display: grid; grid-template-columns: repeat(4,1fr); }
+.stat { padding: 2rem 1rem; text-align: center; border-right: 1px solid rgba(255,255,255,0.07); }
+.stat:last-child { border-right: none; }
+.stat-n { font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:700; color:var(--accent); line-height:1; display:block; margin-bottom:0.3rem; }
+.stat-l { font-size:0.7rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.38); }
+
+section { padding: 6rem 0; }
+.container { max-width: 1180px; margin: 0 auto; padding: 0 3rem; }
+.sec-label { font-size:0.68rem; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:var(--sky); display:block; margin-bottom:0.7rem; }
+.sec-title { font-family:'Playfair Display',serif; font-size:clamp(2rem,3.5vw,3.2rem); font-weight:700; line-height:1.12; color:var(--navy); margin-bottom:1rem; }
+.sec-title em { font-style:italic; color:var(--sky); }
+.sec-body { font-size:1rem; color:var(--muted); line-height:1.75; max-width:540px; }
+.divider { display:flex; align-items:center; gap:0.8rem; margin:0.8rem 0 1.8rem; }
+.div-line { flex:1; height:1px; background:var(--border2); }
+.div-diamond { width:8px; height:8px; background:var(--sky); transform:rotate(45deg); border-radius:1px; }
+
+/* About */
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; }
+.about-imgs { position:relative; }
+.about-img-main { width:100%; aspect-ratio:4/5; object-fit:cover; border-radius:12px; display:block; box-shadow:0 20px 60px rgba(11,31,58,0.18); }
+.about-img-float { position:absolute; bottom:-2rem; right:-2rem; width:55%; aspect-ratio:4/3; object-fit:cover; border-radius:10px; border:5px solid white; box-shadow:0 12px 36px rgba(0,0,0,0.14); }
+.about-pill { position:absolute; top:2rem; left:-1.5rem; background:linear-gradient(135deg,var(--mid),var(--sky)); color:white; padding:1rem 1.2rem; border-radius:10px; text-align:center; font-size:0.78rem; font-weight:600; line-height:1.4; box-shadow:0 8px 24px rgba(37,99,168,0.35); }
+.about-pill strong { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; display:block; line-height:1; }
+.feature-tags { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1.8rem; }
+.ftag { font-size:0.75rem; font-weight:600; padding:0.4rem 0.9rem; border:1.5px solid var(--light); border-radius:4px; color:var(--mid); background:var(--pale); }
+
+/* Properties */
+.props-section { background: var(--pale); }
+.props-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:3rem; gap:2rem; }
+.props-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+.prop-card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); transition:transform 0.3s,box-shadow 0.3s; cursor:default; }
+.prop-card:hover { transform:translateY(-6px); box-shadow:0 16px 44px rgba(11,31,58,0.12); }
+.prop-img { width:100%; aspect-ratio:16/10; object-fit:cover; display:flex; align-items:center; justify-content:center; }
+.prop-badge { display:inline-block; font-size:0.65rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:0.28rem 0.7rem; border-radius:4px; margin-bottom:0.6rem; }
+.badge-available { background:#d1fae5; color:#065f46; }
+.badge-leasing   { background:#dbeafe; color:#1e40af; }
+.badge-full      { background:#fee2e2; color:#991b1b; }
+.prop-body { padding:1.4rem 1.6rem 1.6rem; }
+.prop-name { font-family:'Playfair Display',serif; font-size:1.25rem; font-weight:700; color:var(--navy); margin-bottom:0.25rem; }
+.prop-loc { font-size:0.8rem; color:var(--muted); margin-bottom:0.8rem; }
+.prop-specs { display:flex; gap:1rem; margin-bottom:1rem; }
+.prop-spec { font-size:0.78rem; color:var(--slate); }
+.prop-price { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; color:var(--mid); }
+.prop-price span { font-family:'Nunito',sans-serif; font-size:0.78rem; font-weight:500; color:var(--muted); }
+.prop-footer { display:flex; align-items:center; justify-content:space-between; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border); }
+.btn-sm { display:inline-block; background:var(--mid); color:white; padding:0.5rem 1.1rem; border-radius:6px; font-size:0.76rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; text-decoration:none; transition:background 0.2s; cursor:pointer; border:none; font-family:'Nunito',sans-serif; }
+.btn-sm:hover { background:var(--navy); }
+
+/* Amenities */
+.amenities-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5px; background:var(--border2); border-radius:12px; overflow:hidden; margin-top:3rem; }
+.am-card { background:white; padding:2.2rem 1.8rem; transition:background 0.25s; }
+.am-card:hover { background:var(--pale); }
+.am-icon { width:50px; height:50px; border-radius:12px; background:var(--light); display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:1rem; }
+.am-card h3 { font-size:1rem; font-weight:700; color:var(--navy); margin-bottom:0.45rem; }
+.am-card p { font-size:0.86rem; color:var(--muted); line-height:1.65; }
+
+/* Public Payment */
+.payment-section { background:var(--navy); }
+.payment-section .sec-title { color:white; }
+.payment-section .sec-label { color:#7dd3fc; }
+.pay-info-grid { display:grid; grid-template-columns:1fr 1.4fr; gap:4rem; align-items:start; }
+.pay-info .sec-body { color:rgba(255,255,255,0.55); }
+.pay-features { margin-top:2.5rem; display:flex; flex-direction:column; gap:1.1rem; }
+.pay-feature { display:flex; gap:1rem; align-items:flex-start; padding:1rem 1.2rem; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07); }
+.pay-feature-icon { width:36px; height:36px; border-radius:8px; background:rgba(14,165,233,0.15); border:1px solid rgba(14,165,233,0.25); display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+.pay-feature h4 { font-size:0.88rem; font-weight:700; color:white; margin-bottom:0.2rem; }
+.pay-feature p { font-size:0.8rem; color:rgba(255,255,255,0.45); line-height:1.5; }
+.pub-pay-card { background:white; border-radius:16px; box-shadow:0 24px 64px rgba(0,0,0,0.25); overflow:hidden; }
+.ppc-header { background:linear-gradient(135deg,var(--navy2),var(--blue)); padding:1.6rem 2rem; display:flex; align-items:center; justify-content:space-between; }
+.ppc-header h3 { font-family:'Playfair Display',serif; font-size:1.25rem; font-weight:700; color:white; }
+.ppc-header p { font-size:0.78rem; color:rgba(255,255,255,0.55); margin-top:0.2rem; }
+.secure-pill { display:flex; align-items:center; gap:0.35rem; font-size:0.68rem; font-weight:700; color:#86efac; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); padding:0.28rem 0.7rem; border-radius:999px; }
+.pub-pay-tabs { display:flex; border-bottom:2px solid var(--border); background:var(--pale); }
+.pub-pay-tab { flex:1; padding:0.9rem 0.5rem; text-align:center; font-size:0.8rem; font-weight:600; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color 0.2s,border-color 0.2s; display:flex; align-items:center; justify-content:center; gap:0.4rem; }
+.pub-pay-tab.active { color:var(--mid); border-bottom-color:var(--mid); }
+.pub-pay-body { padding:1.8rem 2rem; }
+.pub-pay-panel { display:none; }
+.pub-pay-panel.active { display:block; }
+.pub-pay-footer { padding:1rem 2rem 1.5rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:center; gap:0.6rem; font-size:0.7rem; color:var(--muted); }
+.pub-pay-footer span { color:var(--success); font-weight:700; }
+.pub-pay-success { display:none; padding:2.5rem; text-align:center; }
+.pub-pay-success.show { display:block; }
+
+/* Forms shared */
+.fg { margin-bottom:1rem; }
+.fg label { display:block; font-size:0.7rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--slate); margin-bottom:0.38rem; }
+.fg input,.fg select,.fg textarea { width:100%; padding:0.78rem 1rem; border:1.5px solid var(--border); border-radius:9px; font-family:'Nunito',sans-serif; font-size:0.92rem; color:var(--text); outline:none; transition:border-color 0.2s,box-shadow 0.2s; background:white; }
+.fg input:focus,.fg select:focus,.fg textarea:focus { border-color:var(--sky); box-shadow:0 0 0 3px rgba(59,130,196,0.12); }
+.fg input::placeholder,.fg textarea::placeholder { color:#bdc3cc; }
+.fg-row2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.fg-row3 { display:grid; grid-template-columns:2fr 1fr 1.2fr; gap:0.8rem; }
+.card-brands { display:flex; gap:0.4rem; margin-bottom:1.3rem; }
+.cbrand { height:24px; padding:0 8px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; }
+.cbrand.visa { background:#1a1f71; color:white; } .cbrand.mc { background:#eb001b; color:white; }
+.cbrand.amex { background:#2e77bc; color:white; } .cbrand.disc { background:var(--pale); border:1px solid var(--border); color:var(--slate); }
+.amt-box { background:var(--pale); border:1.5px solid var(--light); border-radius:9px; padding:0.9rem 1.1rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:1.1rem; }
+.amt-lbl { font-size:0.76rem; font-weight:700; color:var(--muted); }
+.amt-val { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; color:var(--navy); }
+.submit-btn { width:100%; padding:1rem; background:linear-gradient(135deg,var(--mid),var(--sky)); color:white; border:none; border-radius:9px; font-family:'Nunito',sans-serif; font-size:0.9rem; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; box-shadow:0 6px 18px rgba(37,99,168,0.3); transition:opacity 0.2s,transform 0.2s; margin-top:0.4rem; }
+.submit-btn:hover { opacity:0.9; transform:translateY(-1px); }
+.venmo-btn { width:100%; padding:1rem; background:#3D95CE; color:white; border:none; border-radius:9px; font-family:'Nunito',sans-serif; font-size:0.9rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.6rem; margin-bottom:0.8rem; transition:background 0.2s; }
+.venmo-btn:hover { background:#2d7ab0; }
+.paypal-btn { width:100%; padding:1rem; background:#FFC439; color:#003087; border:none; border-radius:9px; font-family:'Nunito',sans-serif; font-size:0.9rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.6rem; transition:background 0.2s; }
+.paypal-btn:hover { background:#f0b429; }
+.pay-or { display:flex; align-items:center; gap:1rem; color:var(--muted); font-size:0.78rem; margin:1rem 0; }
+.pay-or::before,.pay-or::after { content:''; flex:1; height:1px; background:var(--border); }
+.success-circle { width:68px; height:68px; background:#d1fae5; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; margin:0 auto 1.2rem; }
+.success-h3 { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--navy); margin-bottom:0.5rem; }
+.reset-btn { margin-top:1.2rem; background:none; border:1.5px solid var(--border); padding:0.6rem 1.4rem; border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.85rem; font-weight:700; color:var(--mid); }
+
+/* Contact */
+.contact-section { background:var(--pale); }
+.contact-grid { display:grid; grid-template-columns:1fr 1.1fr; gap:4.5rem; align-items:start; }
+.contact-cards { display:flex; flex-direction:column; gap:1rem; margin-top:2rem; }
+.contact-card { display:flex; gap:1rem; align-items:flex-start; background:white; padding:1.2rem 1.4rem; border-radius:10px; border:1px solid var(--border); transition:box-shadow 0.2s; }
+.contact-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.07); }
+.cc-icon { width:40px; height:40px; border-radius:10px; background:var(--light); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+.cc-label { font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--sky); margin-bottom:0.2rem; }
+.cc-val { font-size:0.95rem; font-weight:600; color:var(--navy); }
+.cc-val a { color:var(--navy); text-decoration:none; }
+.cc-val a:hover { color:var(--sky); }
+.contact-form-card { background:white; border-radius:14px; padding:2.5rem; box-shadow:0 8px 32px rgba(0,0,0,0.07); }
+.contact-form-card h3 { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--navy); margin-bottom:1.5rem; }
+.cf-group { margin-bottom:1rem; }
+.cf-group label { display:block; font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--slate); margin-bottom:0.4rem; }
+.cf-group input,.cf-group select,.cf-group textarea { width:100%; padding:0.8rem 1rem; border:1.5px solid var(--border); border-radius:8px; font-family:'Nunito',sans-serif; font-size:0.9rem; color:var(--text); outline:none; transition:border-color 0.2s,box-shadow 0.2s; }
+.cf-group input:focus,.cf-group select:focus,.cf-group textarea:focus { border-color:var(--sky); box-shadow:0 0 0 3px rgba(59,130,196,0.12); }
+.cf-group input::placeholder,.cf-group textarea::placeholder { color:#bdc3cc; }
+.cf-group textarea { resize:vertical; min-height:90px; }
+.cf-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.cf-submit { width:100%; padding:0.95rem; background:linear-gradient(135deg,var(--mid),var(--sky)); color:white; border:none; border-radius:8px; font-family:'Nunito',sans-serif; font-size:0.88rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; margin-top:0.5rem; transition:opacity 0.2s; }
+.cf-submit:hover { opacity:0.88; }
+
+/* Footer */
+footer { background:var(--navy); padding:3rem; }
+.footer-inner { max-width:1180px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:2rem; flex-wrap:wrap; }
+.footer-logo { font-family:'Playfair Display',serif; font-size:1.25rem; font-weight:700; color:rgba(255,255,255,0.45); }
+.footer-links { display:flex; gap:1.8rem; list-style:none; }
+.footer-links a { font-size:0.78rem; color:rgba(255,255,255,0.3); text-decoration:none; transition:color 0.2s; cursor:pointer; }
+.footer-links a:hover { color:rgba(255,255,255,0.65); }
+.footer-copy { font-size:0.72rem; color:rgba(255,255,255,0.2); }
+
+/* Scroll reveal */
+.reveal { opacity:0; transform:translateY(28px); transition:opacity 0.65s ease,transform 0.65s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+.d1{transition-delay:0.1s;} .d2{transition-delay:0.2s;} .d3{transition-delay:0.3s;} .d4{transition-delay:0.4s;} .d5{transition-delay:0.5s;}
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* NAV */
+  #public-nav { padding: 1rem 1.2rem; }
+  .nav-links { display: none; }
+  .nav-mobile-menu { display: flex !important; }
+
+  /* HERO */
+  .hero { min-height: 100svh; }
+  .hero-content { padding: 0 1.2rem; }
+  .hero h1 { font-size: 2.4rem; }
+  .hero-sub { font-size: 0.9rem; }
+  .hero-actions { flex-direction: column; }
+  .hero-actions button, .hero-actions .btn-primary, .hero-actions .btn-ghost { width: 100%; text-align: center; }
+
+  /* STATS BAR */
+  .stats-bar { grid-template-columns: repeat(2,1fr); }
+
+  /* SECTIONS */
+  section { padding: 3.5rem 0; }
+  .container { padding: 0 1.2rem; }
+
+  /* ABOUT */
+  .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .about-img-float { display: none; }
+  .about-pill { left: 0.5rem; }
+
+  /* PROPERTIES */
+  .props-grid { grid-template-columns: 1fr; }
+  .props-header { flex-direction: column; align-items: flex-start; }
+
+  /* AMENITIES */
+  .amenities-grid { grid-template-columns: 1fr; gap: 1px; }
+
+  /* LOCATIONS */
+  div[style*="grid-template-columns:repeat(3,1fr)"] { grid-template-columns: 1fr !important; }
+
+  /* NEIGHBORHOOD */
+  .nbh-grid { grid-template-columns: 1fr !important; }
+
+  /* CONTACT */
+  .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .cf-row { grid-template-columns: 1fr; }
+
+  /* FOOTER */
+  .footer-inner { flex-direction: column; text-align: center; gap: 1.2rem; }
+  .footer-links { flex-wrap: wrap; justify-content: center; gap: 1rem; }
+
+  /* PORTAL LOGIN */
+  .login-card { margin: 1rem; }
+  .login-top { padding: 1.6rem 1.4rem 1.4rem; }
+  .login-body { padding: 1.4rem; }
+
+  /* PORTAL DASHBOARD */
+  .portal-wrap { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  /* Sidebar top bar — logo + user compressed into one row */
+  .sb-logo {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-right: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .sb-user {
+    display: none;
+  }
+
+  /* Nav becomes horizontal scrolling tab bar */
+  .sb-nav {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .sb-nav::-webkit-scrollbar { display: none; }
+  .sb-section-label { display: none; }
+  .sb-link {
+    padding: 0.75rem 1rem;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+  }
+  .sb-link.active {
+    border-left-color: transparent;
+    border-bottom-color: var(--accent);
+    background: rgba(14,165,233,0.12);
+  }
+  .sb-bottom { display: none; }
+
+  /* Sign out moves inline in nav */
+  .sb-bottom { display: flex; border-top: none; border-left: 1px solid rgba(255,255,255,0.06); padding: 0; flex-shrink: 0; }
+  .sb-logout { padding: 0.75rem 1rem; font-size: 0.78rem; white-space: nowrap; border-bottom: 3px solid transparent; }
+
+  /* PORTAL MAIN CONTENT */
+  .main-content { padding: 1rem; }
+  .page-title { font-size: 1.4rem; }
+  .page-header { margin-bottom: 1.2rem; }
+
+  /* DASHBOARD STATS — 2 columns on mobile */
+  .dash-stats { grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-bottom: 1.2rem; }
+  .stat-card { padding: 1rem; }
+  .stat-val { font-size: 1.4rem; }
+  .dash-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .dash-col { gap: 1rem; }
+
+  /* RENT BANNER */
+  .rb-amount { font-size: 1.7rem; }
+  .rent-banner { padding: 1.2rem; }
+
+  /* PCARD */
+  .pcard { padding: 1.1rem; }
+  .pcard-title { font-size: 0.7rem; margin-bottom: 0.9rem; }
+
+  /* PAYMENTS */
+  .ptabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ptab { padding: 0.7rem 0.9rem; font-size: 0.74rem; white-space: nowrap; flex-shrink: 0; }
+  .pay-form-wrap { max-width: 100% !important; }
+  .pfh { padding: 1rem 1.2rem; }
+  .pfh h3 { font-size: 1rem; }
+  .pfb { padding: 1.2rem; }
+  .pff { padding: 0.7rem 1.2rem; font-size: 0.65rem; }
+  .fg-row2 { grid-template-columns: 1fr; }
+  .fg-row3 { grid-template-columns: 1fr; }
+  .amt-val { font-size: 1.3rem; }
+  .submit-btn { font-size: 0.82rem; padding: 0.9rem; }
+
+  /* PAYMENT HISTORY TABLE */
+  .pay-hist-table { font-size: 0.72rem; display: block; overflow-x: auto; }
+  .pay-hist-table th, .pay-hist-table td { padding: 0.5rem 0.4rem; white-space: nowrap; }
+
+  /* MAINTENANCE */
+  .maint-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .priority-btns { gap: 0.4rem; flex-wrap: wrap; }
+  .priority-btn { font-size: 0.72rem; padding: 0.4rem 0.8rem; }
+
+  /* DOCUMENTS */
+  .doc-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .doc-tab { white-space: nowrap; flex-shrink: 0; padding: 0.7rem 1rem; font-size: 0.76rem; }
+  .doc-card { flex-direction: column; align-items: flex-start; gap: 0.7rem; padding: 1rem; }
+  .doc-actions { flex-wrap: wrap; gap: 0.4rem; }
+  .sign-btn, .view-btn { font-size: 0.74rem; padding: 0.45rem 0.8rem; }
+
+  /* PROFILE */
+  div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+
+  /* MODAL */
+  .modal-overlay { padding: 0.5rem; align-items: flex-end; }
+  .modal { border-radius: 18px 18px 0 0; max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 1.2rem 1.4rem; }
+  .modal-preview { margin: 1rem 1.4rem; height: 120px; }
+  .modal-sign-area { padding: 0 1.4rem; }
+  .modal-footer { padding: 1rem 1.4rem; flex-wrap: wrap; gap: 0.5rem; }
+
+  /* NOTICE CARD */
+  .notice-card { flex-direction: column; padding: 0.9rem; }
+
+  /* ADMIN DASHBOARD */
+  #view-admin > div { flex-direction: column; }
+  #view-admin aside {
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  #view-admin aside > div:first-child { flex-shrink: 0; padding: 0.7rem 1rem; }
+  #view-admin aside > div:nth-child(2) { display: none; }
+  #view-admin aside nav {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    overflow-x: auto;
+    padding: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #view-admin aside nav::-webkit-scrollbar { display: none; }
+  #view-admin aside > div:last-child { display: none; }
+  .admin-nav-link {
+    padding: 0.8rem 1rem;
+    font-size: 0.76rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+  .admin-nav-link.active {
+    border-left-color: transparent;
+    border-bottom-color: #f59e0b;
+  }
+  #view-admin main { padding: 1rem; }
+  #view-admin div[style*="grid-template-columns:repeat(4,1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  /* PROPERTY PAGES */
+  .prop-page-hero { height: 50vh; min-height: 320px; }
+  .prop-page-hero-content { padding: 1.2rem 1.5rem; }
+  .prop-page-title { font-size: 1.6rem; }
+  .prop-page-body { padding: 0 1rem 2rem; }
+  .prop-page-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .prop-photo-grid { grid-auto-rows: 150px; gap: 0.5rem; }
+  .prop-photo-grid img:first-child { grid-row: span 2; height: 100%; }
+  .prop-sidebar-card { position: relative; top: 0; }
+  .prop-page-section-title { font-size: 1.1rem; }
+  .floor-plan-card { padding: 1rem; gap: 0.8rem; }
+  .fp-price { font-size: 1.1rem; }
+  .prop-virtual-tour { padding: 1.5rem 1rem; }
+
+  /* PROPERTY LISTING PAGE */
+  #view-properties > div:nth-child(2) { padding: 2rem 1rem; }
+  #view-properties .props-grid { grid-template-columns: 1fr; }
+  #view-properties div[style*="padding:3rem"] { padding: 1.2rem !important; }
+
+  /* NAV BANNERS on property pages */
+  #view-properties > div:first-child,
+  #view-property > div:first-child { padding: 0.7rem 1rem !important; }
+  #view-properties > div:first-child > div:last-child,
+  #view-property > div:first-child > div:last-child { display: none; }
+
+  /* EMPLOYEE PORTAL */
+  #view-employee > div { flex-direction: column; }
+  #view-employee aside {
+    width: 100%; height: auto;
+    position: sticky; top: 0; z-index: 100;
+    flex-direction: row; flex-wrap: nowrap; overflow-x: auto;
+  }
+  #view-employee aside > div:first-child { flex-shrink: 0; padding: 0.7rem 1rem; }
+  #view-employee aside > div:nth-child(2) { display: none; }
+  #view-employee aside nav {
+    display: flex; flex-direction: row; flex: 1;
+    overflow-x: auto; padding: 0;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  #view-employee aside nav::-webkit-scrollbar { display: none; }
+  #view-employee aside > div:last-child { display: none; }
+  #view-employee main { padding: 1rem; }
+  #view-employee div[style*="grid-template-columns:repeat(3,1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* PROPERTY LISTING — hero banner padding */
+  #view-properties > div:nth-child(2) > div:first-child { padding: 2rem 1.2rem !important; }
+  #view-properties > div:nth-child(2) > div:first-child h1 { font-size: 1.8rem !important; }
+
+  /* PROPERTY DETAIL — nav banner buttons stack */
+  #view-property > div:first-child { flex-wrap: wrap; gap: 0.5rem; }
+
+  /* CTA BANNER in properties listing */
+  #view-properties div[style*="display:flex;align-items:center;justify-content:space-between"] {
+    flex-direction: column !important;
+    padding: 1.5rem !important;
+    text-align: center;
+  }
+
+  /* ADMIN 3-column stat grid */
+  #view-employee div[style*="grid-template-columns:repeat(3,1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Floor plan cards on mobile */
+  .floor-plan-card { flex-wrap: wrap; }
+  .fp-price { width: 100%; margin-top: 0.3rem; }
+}
+
+@media (max-width: 480px) {
+  /* HOMEPAGE */
+  .hero h1 { font-size: 1.9rem; }
+  .stats-bar { grid-template-columns: 1fr 1fr; }
+  .card-brands { flex-wrap: wrap; }
+  .dash-stats { grid-template-columns: 1fr; }
+
+  /* PAYMENTS */
+  .doc-tabs { overflow-x: auto; }
+  .doc-tab { white-space: nowrap; }
+  .ptab { white-space: nowrap; font-size: 0.74rem; padding: 0.7rem 0.9rem; }
+
+  /* PROPERTY PAGES */
+  .prop-photo-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
+  .prop-photo-grid img { height: 200px !important; }
+  .prop-photo-grid img:first-child { grid-column: 1; grid-row: auto !important; height: 240px !important; }
+  .prop-page-title { font-size: 1.3rem; }
+  .prop-page-addr { font-size: 0.8rem; }
+
+  /* ADMIN AND EMPLOYEE STATS */
+  #view-admin div[style*="grid-template-columns:repeat(4,1fr)"] { grid-template-columns: 1fr 1fr !important; }
+  #view-employee div[style*="grid-template-columns:repeat(3,1fr)"] { grid-template-columns: 1fr 1fr !important; }
+
+  /* NAV BANNERS — hide buttons entirely on very small screens */
+  #view-properties > div:first-child > div:last-child { display: none !important; }
+  #view-property > div:first-child > div:last-child { display: none !important; }
+
+  /* LOGIN */
+  .login-card { margin: 0.5rem; }
+  .login-top h2 { font-size: 1.3rem; }
+}
+.nav-mobile-menu {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 5px;
+  padding: 4px;
+}
+.nav-mobile-menu span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: white;
+  border-radius: 2px;
+  transition: background 0.3s;
+}
+#public-nav.scrolled .nav-mobile-menu span { background: var(--navy); }
+
+/* Mobile nav dropdown */
+.nav-mobile-open {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  z-index: 299;
+}
+.nav-mobile-open.show { display: flex; }
+.nav-mobile-open a {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--navy);
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  cursor: pointer;
+  display: block;
+}
+.nav-mobile-open a:last-child { border-bottom: none; }
+.chip-green{background:#d1fae5;color:#065f46;} .chip-yellow{background:#fef9c3;color:#713f12;}
+.chip-red{background:#fee2e2;color:#991b1b;} .chip-blue{background:#dbeafe;color:#1e40af;}
+
+/* ═══════════════════════════════════════════
+   PROPERTY PAGES
+═══════════════════════════════════════════ */
+#view-property.active { display: block; }
+.prop-page-hero {
+  position: relative; height: 70vh; min-height: 500px;
+  display: flex; align-items: flex-end;
+  overflow: hidden;
+}
+.prop-page-hero-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(11,31,58,0.9) 0%, rgba(11,31,58,0.3) 60%, transparent 100%);
+  z-index: 1;
+}
+.prop-page-hero img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+.prop-page-hero-content {
+  position: relative; z-index: 2;
+  padding: 3rem;
+  width: 100%;
+}
+.prop-page-back {
+  position: absolute; top: 1.5rem; left: 1.5rem; z-index: 10;
+  background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25); color: white;
+  padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.8rem;
+  font-weight: 700; cursor: pointer; font-family: 'Nunito', sans-serif;
+  transition: background 0.2s; display: flex; align-items: center; gap: 0.4rem;
+}
+.prop-page-back:hover { background: rgba(255,255,255,0.25); }
+.prop-page-tag {
+  display: inline-block; background: var(--accent);
+  color: white; font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.3rem 0.8rem; border-radius: 4px; margin-bottom: 0.8rem;
+}
+.prop-page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700; color: white; line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+.prop-page-addr {
+  font-size: 0.95rem; color: rgba(255,255,255,0.7);
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.prop-page-body { max-width: 1180px; margin: 0 auto; padding: 0 3rem 5rem; }
+.prop-page-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem; margin-top: 3rem; align-items: start; }
+.prop-page-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 700; color: var(--navy);
+  margin-bottom: 1.2rem; padding-bottom: 0.7rem;
+  border-bottom: 2px solid var(--light);
+}
+.prop-photo-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 200px;
+  gap: 0.8rem; margin-bottom: 2.5rem;
+}
+.prop-photo-grid img {
+  width: 100%; height: 100%; object-fit: cover;
+  border-radius: 10px; display: block;
+}
+.prop-photo-grid img:first-child {
+  grid-column: 1 / -1;
+  grid-row: span 2;
+  height: 100%;
+}
+.prop-floor-plans { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; }
+.floor-plan-card {
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 1.4rem 1.6rem;
+  display: flex; align-items: center; gap: 1.2rem;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.floor-plan-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-color: var(--light); }
+.fp-icon { width: 52px; height: 52px; border-radius: 10px; background: var(--pale); border: 1.5px solid var(--light); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.fp-info { flex: 1; }
+.fp-name { font-size: 1rem; font-weight: 800; color: var(--navy); margin-bottom: 0.2rem; }
+.fp-specs { font-size: 0.8rem; color: var(--muted); }
+.fp-price { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--mid); white-space: nowrap; }
+.fp-price span { font-family: 'Nunito', sans-serif; font-size: 0.75rem; font-weight: 500; color: var(--muted); }
+.prop-sidebar-card {
+  background: white; border-radius: 16px;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  overflow: hidden; position: sticky; top: 2rem;
+}
+.prop-sidebar-header {
+  background: linear-gradient(135deg, var(--navy2), var(--blue));
+  padding: 1.5rem; color: white;
+}
+.prop-sidebar-header h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.3rem; }
+.prop-sidebar-header p { font-size: 0.8rem; color: rgba(255,255,255,0.55); }
+.prop-sidebar-body { padding: 1.5rem; }
+.prop-info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.6rem 0; border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.prop-info-row:last-of-type { border-bottom: none; }
+.prop-info-label { color: var(--muted); font-weight: 600; }
+.prop-info-val { font-weight: 800; color: var(--navy); }
+.prop-virtual-tour {
+  background: var(--pale); border: 2px dashed var(--border);
+  border-radius: 12px; padding: 2.5rem; text-align: center;
+  margin-bottom: 2.5rem;
+}
+.prop-virtual-tour h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--navy); margin: 0.8rem 0 0.4rem; }
+.prop-virtual-tour p { font-size: 0.83rem; color: var(--muted); }
+
+#portal-login-screen {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 60%,#1e6fa8 100%);
+  position:relative; overflow:hidden;
+}
+#portal-login-screen::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 80% 60% at 20% 20%,rgba(14,165,233,0.15) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 50% at 80% 80%,rgba(37,99,168,0.2) 0%,transparent 60%);
+}
+.login-bg-circles { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.circle { position:absolute; border-radius:50%; border:1px solid rgba(255,255,255,0.06); }
+.c1{width:600px;height:600px;top:-200px;right:-150px;} .c2{width:400px;height:400px;bottom:-100px;left:-80px;} .c3{width:200px;height:200px;top:40%;left:10%;}
+.back-to-site {
+  position:absolute; top:1.2rem; left:1.5rem; z-index:3;
+  color:rgba(255,255,255,0.55); font-size:0.78rem; font-weight:600;
+  text-decoration:none; display:flex; align-items:center; gap:0.35rem;
+  transition:color 0.2s; cursor:pointer; border:none; background:none; font-family:'Nunito',sans-serif;
+}
+.back-to-site:hover { color:white; }
+.login-card {
+  position:relative; z-index:2; background:white; border-radius:20px;
+  width:100%; max-width:440px; margin:1.5rem;
+  box-shadow:0 32px 80px rgba(0,0,0,0.35); overflow:hidden;
+  animation:cardUp 0.7s cubic-bezier(.22,.68,0,1.2) both;
+}
+@keyframes cardUp { from{opacity:0;transform:translateY(32px) scale(0.97);} to{opacity:1;transform:translateY(0) scale(1);} }
+.login-top { background:linear-gradient(135deg,var(--navy2),var(--blue)); padding:2.2rem 2.4rem 2rem; }
+.login-logo { display:flex; align-items:center; gap:0.6rem; margin-bottom:1.5rem; }
+.login-logo-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#0b1f3a; flex-shrink:0; }
+.login-logo span { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; color:white; }
+.login-top h2 { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; color:white; margin-bottom:0.3rem; }
+.login-top p { font-size:0.83rem; color:rgba(255,255,255,0.55); }
+.login-body { padding:2rem 2.4rem 2.4rem; }
+.login-error { background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; font-size:0.8rem; font-weight:600; padding:0.7rem 1rem; border-radius:8px; margin-bottom:1.2rem; display:none; }
+.login-error.show { display:block; }
+.lf-group { margin-bottom:1.1rem; }
+.lf-group label { display:block; font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--slate); margin-bottom:0.4rem; }
+.lf-group input { width:100%; padding:0.82rem 1rem; border:1.5px solid var(--border); border-radius:9px; font-family:'Nunito',sans-serif; font-size:0.95rem; color:var(--text); outline:none; transition:border-color 0.2s,box-shadow 0.2s; }
+.lf-group input:focus { border-color:var(--sky); box-shadow:0 0 0 3px rgba(59,130,196,0.13); }
+.lf-group input::placeholder { color:#bdc3cc; }
+.login-forgot { text-align:right; margin-bottom:1.4rem; }
+.login-forgot a { font-size:0.78rem; color:var(--sky); text-decoration:none; font-weight:600; }
+.login-btn { width:100%; padding:1rem; background:linear-gradient(135deg,var(--mid),var(--sky)); color:white; border:none; border-radius:9px; font-family:'Nunito',sans-serif; font-size:0.92rem; font-weight:800; letter-spacing:0.07em; text-transform:uppercase; cursor:pointer; box-shadow:0 6px 20px rgba(37,99,168,0.35); transition:opacity 0.2s,transform 0.2s; }
+.login-btn:hover { opacity:0.9; transform:translateY(-1px); }
+.login-demo { margin-top:1.4rem; padding:0.9rem; background:var(--pale); border:1px solid var(--light); border-radius:8px; font-size:0.78rem; color:var(--slate); text-align:center; line-height:1.6; }
+.login-demo strong { color:var(--mid); }
+
+/* ═══════════════════════════════════════════
+   PORTAL — DASHBOARD LAYOUT
+═══════════════════════════════════════════ */
+#portal-dashboard { display:none; flex:1; }
+#portal-dashboard.show { display:flex; }
+.portal-wrap { display:flex; flex:1; min-height:100vh; }
+.sidebar { width:var(--sidebar-w); flex-shrink:0; background:var(--navy); display:flex; flex-direction:column; position:sticky; top:0; height:100vh; box-shadow:4px 0 24px rgba(0,0,0,0.15); }
+.sb-logo { padding:1.6rem 1.5rem 1.4rem; display:flex; align-items:center; gap:0.6rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+.sb-logo-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#0b1f3a; flex-shrink:0; }
+.sb-logo span { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; color:white; }
+.sb-user { padding:1.2rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+.sb-avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,var(--mid),var(--sky)); display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; color:white; margin-bottom:0.6rem; font-family:'Playfair Display',serif; }
+.sb-name { font-size:0.88rem; font-weight:700; color:white; margin-bottom:0.1rem; }
+.sb-unit { font-size:0.72rem; color:rgba(255,255,255,0.4); letter-spacing:0.04em; }
+.sb-nav { flex:1; padding:1rem 0; }
+.sb-section-label { font-size:0.6rem; font-weight:800; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.25); padding:0.8rem 1.5rem 0.4rem; }
+.sb-link { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1.5rem; cursor:pointer; font-size:0.86rem; font-weight:600; color:rgba(255,255,255,0.55); transition:background 0.2s,color 0.2s; border-left:3px solid transparent; user-select:none; }
+.sb-link:hover { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.85); }
+.sb-link.active { background:rgba(14,165,233,0.12); color:white; border-left-color:var(--accent); }
+.sb-icon { font-size:1.1rem; width:22px; text-align:center; }
+.sb-badge { margin-left:auto; background:var(--error); color:white; font-size:0.62rem; font-weight:800; padding:0.15rem 0.5rem; border-radius:999px; min-width:18px; text-align:center; }
+.sb-bottom { padding:1rem 1.5rem; border-top:1px solid rgba(255,255,255,0.06); }
+.sb-logout { display:flex; align-items:center; gap:0.6rem; font-size:0.82rem; color:rgba(255,255,255,0.35); cursor:pointer; padding:0.5rem 0; transition:color 0.2s; font-weight:600; }
+.sb-logout:hover { color:rgba(255,255,255,0.7); }
+.main-content { flex:1; overflow-y:auto; padding:2.2rem 2.4rem; background:var(--pale); }
+.main-content::-webkit-scrollbar{width:5px;} .main-content::-webkit-scrollbar-track{background:transparent;} .main-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px;}
+.ppage { display:none; }
+.ppage.active { display:block; animation:pageIn 0.3s ease both; }
+@keyframes pageIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+.page-header { margin-bottom:2rem; }
+.page-title { font-family:'Playfair Display',serif; font-size:1.9rem; font-weight:700; color:var(--navy); margin-bottom:0.25rem; }
+.page-sub { font-size:0.88rem; color:var(--muted); }
+.pcard { background:white; border-radius:14px; padding:1.6rem; box-shadow:0 2px 12px rgba(0,0,0,0.06); border:1px solid var(--border); }
+.pcard-title { font-size:0.75rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:var(--slate); margin-bottom:1.2rem; display:flex; align-items:center; gap:0.5rem; }
+
+/* Dash stats */
+.dash-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; margin-bottom:1.8rem; }
+.stat-card { background:white; border-radius:14px; padding:1.4rem 1.6rem; box-shadow:0 2px 12px rgba(0,0,0,0.06); border:1px solid var(--border); position:relative; overflow:hidden; }
+.stat-card::after { content:''; position:absolute; top:-20px; right:-20px; width:80px; height:80px; border-radius:50%; opacity:0.08; }
+.stat-card.blue::after{background:var(--accent);} .stat-card.green::after{background:var(--success);} .stat-card.orange::after{background:var(--warning);}
+.stat-icon { font-size:1.5rem; margin-bottom:0.7rem; }
+.stat-val { font-family:'Playfair Display',serif; font-size:1.9rem; font-weight:700; color:var(--navy); line-height:1; }
+.stat-lbl { font-size:0.76rem; font-weight:600; color:var(--muted); margin-top:0.25rem; }
+.dash-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:1.4rem; margin-bottom:1.4rem; }
+.dash-col { display:flex; flex-direction:column; gap:1.4rem; }
+.rent-banner { background:linear-gradient(135deg,var(--navy2),var(--blue)); border-radius:14px; padding:1.6rem; color:white; position:relative; overflow:hidden; }
+.rent-banner::before { content:''; position:absolute; top:-30px; right:-30px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,0.04); }
+.rb-label { font-size:0.7rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:0.4rem; }
+.rb-amount { font-family:'Playfair Display',serif; font-size:2.4rem; font-weight:700; color:white; line-height:1; margin-bottom:0.3rem; }
+.rb-due { font-size:0.82rem; color:rgba(255,255,255,0.6); margin-bottom:1.2rem; }
+.pay-now-btn { display:inline-block; background:var(--accent); color:white; padding:0.65rem 1.6rem; border-radius:8px; font-size:0.82rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; border:none; cursor:pointer; transition:background 0.2s,transform 0.2s; font-family:'Nunito',sans-serif; }
+.pay-now-btn:hover { background:#0284c7; transform:translateY(-1px); }
+.activity-list { display:flex; flex-direction:column; gap:0; }
+.ai { display:flex; align-items:center; gap:0.9rem; padding:0.85rem 0; border-bottom:1px solid var(--border); }
+.ai:last-child { border-bottom:none; }
+.ai-icon { width:36px; height:36px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.ai-green{background:#d1fae5;} .ai-blue{background:#dbeafe;} .ai-yellow{background:#fef9c3;}
+.ai-title { font-size:0.85rem; font-weight:700; color:var(--text); }
+.ai-date { font-size:0.72rem; color:var(--muted); }
+.ai-amt { font-size:0.88rem; font-weight:800; color:var(--navy); }
+.notice-card { border-left:4px solid var(--warning); background:#fffbeb; border-radius:10px; padding:1rem 1.2rem; display:flex; gap:0.8rem; align-items:flex-start; }
+.notice-card p { font-size:0.83rem; color:#78350f; line-height:1.55; }
+
+/* Portal payments */
+.ptabs { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:1.8rem; }
+.ptab { padding:0.8rem 1.6rem; font-size:0.8rem; font-weight:700; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color 0.2s,border-color 0.2s; display:flex; align-items:center; gap:0.4rem; }
+.ptab.active { color:var(--mid); border-bottom-color:var(--mid); }
+.ppanel { display:none; }
+.ppanel.active { display:block; }
+.pay-form-wrap { background:white; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,0.08); border:1px solid var(--border); overflow:hidden; max-width:620px; }
+.pfh { background:linear-gradient(135deg,var(--navy2),var(--blue)); padding:1.4rem 2rem; display:flex; align-items:center; justify-content:space-between; }
+.pfh h3 { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:white; }
+.pfh p { font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:0.15rem; }
+.pfb { padding:1.8rem 2rem; }
+.pff { padding:0.9rem 2rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:center; gap:0.5rem; font-size:0.7rem; color:var(--muted); }
+.pff span { color:var(--success); font-weight:800; }
+.pay-hist-table { width:100%; border-collapse:collapse; }
+.pay-hist-table th { font-size:0.68rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); padding:0.7rem 1rem; text-align:left; background:var(--pale); border-bottom:2px solid var(--border); }
+.pay-hist-table td { padding:0.95rem 1rem; border-bottom:1px solid var(--border); font-size:0.87rem; }
+.pay-hist-table tr:last-child td { border-bottom:none; }
+.pay-hist-table tr:hover td { background:var(--pale); }
+
+/* Maintenance */
+.maint-grid { display:grid; grid-template-columns:1.2fr 1fr; gap:1.8rem; align-items:start; }
+.priority-btns { display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap; }
+.priority-btn { padding:0.45rem 1rem; border-radius:6px; font-size:0.76rem; font-weight:700; border:2px solid transparent; cursor:pointer; transition:all 0.2s; font-family:'Nunito',sans-serif; }
+.pri-low{background:#d1fae5;color:#065f46;border-color:#a7f3d0;} .pri-med{background:#fef9c3;color:#713f12;border-color:#fde68a;}
+.pri-high{background:#fee2e2;color:#991b1b;border-color:#fca5a5;} .pri-emer{background:#991b1b;color:white;border-color:#b91c1c;}
+.priority-btn.selected { box-shadow:0 0 0 3px rgba(37,99,168,0.25); }
+.photo-drop { border:2px dashed var(--border); border-radius:10px; padding:2rem; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s; background:var(--pale); }
+.photo-drop:hover { border-color:var(--sky); background:var(--light); }
+.photo-drop p { font-size:0.83rem; color:var(--muted); margin-top:0.4rem; }
+.photo-drop strong { color:var(--mid); font-size:0.9rem; }
+.maint-card { background:white; border-radius:12px; padding:1.2rem 1.4rem; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04); transition:box-shadow 0.2s; margin-bottom:1rem; }
+.maint-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.08); }
+.mc-top { display:flex; align-items:flex-start; justify-content:space-between; gap:0.8rem; margin-bottom:0.6rem; }
+.mc-title { font-size:0.9rem; font-weight:800; color:var(--navy); }
+.mc-date { font-size:0.72rem; color:var(--muted); }
+.mc-desc { font-size:0.82rem; color:var(--muted); line-height:1.55; margin-bottom:0.7rem; }
+.mc-status { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.72rem; font-weight:800; padding:0.25rem 0.7rem; border-radius:999px; }
+.status-open{background:#dbeafe;color:#1e40af;} .status-prog{background:#fef9c3;color:#713f12;} .status-done{background:#d1fae5;color:#065f46;}
+.status-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+.maint-success { display:none; background:#f0fdf4; border:2px solid #a7f3d0; border-radius:12px; padding:1.2rem 1.4rem; margin-bottom:1.2rem; align-items:center; gap:0.8rem; }
+.maint-success.show { display:flex; }
+
+/* Documents */
+.doc-tabs { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:1.8rem; }
+.doc-tab { padding:0.8rem 1.6rem; font-size:0.8rem; font-weight:700; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color 0.2s,border-color 0.2s; }
+.doc-tab.active { color:var(--mid); border-bottom-color:var(--mid); }
+.doc-panel { display:none; }
+.doc-panel.active { display:block; }
+.doc-list { display:flex; flex-direction:column; gap:1rem; }
+.doc-card { background:white; border-radius:12px; padding:1.3rem 1.5rem; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04); display:flex; align-items:center; gap:1.2rem; transition:box-shadow 0.2s; }
+.doc-card:hover { box-shadow:0 6px 20px rgba(0,0,0,0.08); }
+.doc-icon { width:46px; height:46px; border-radius:10px; background:var(--pale); border:1.5px solid var(--light); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+.doc-info { flex:1; }
+.doc-name { font-size:0.9rem; font-weight:800; color:var(--navy); margin-bottom:0.2rem; }
+.doc-meta { font-size:0.75rem; color:var(--muted); }
+.doc-actions { display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; }
+.sign-btn { display:inline-flex; align-items:center; gap:0.4rem; background:linear-gradient(135deg,var(--mid),var(--sky)); color:white; border:none; padding:0.55rem 1.1rem; border-radius:7px; font-family:'Nunito',sans-serif; font-size:0.78rem; font-weight:800; cursor:pointer; transition:opacity 0.2s; }
+.sign-btn:hover { opacity:0.88; }
+.view-btn { display:inline-flex; align-items:center; gap:0.4rem; background:var(--pale); border:1.5px solid var(--border); color:var(--slate); padding:0.52rem 1rem; border-radius:7px; font-family:'Nunito',sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer; transition:background 0.2s; }
+.view-btn:hover { background:var(--light); }
+.signed-badge { display:inline-flex; align-items:center; gap:0.35rem; background:#d1fae5; color:#065f46; font-size:0.72rem; font-weight:800; padding:0.3rem 0.75rem; border-radius:999px; }
+
+/* DocuSign Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(11,31,58,0.65); backdrop-filter:blur(4px); z-index:1000; display:none; align-items:center; justify-content:center; padding:1.5rem; }
+.modal-overlay.show { display:flex; }
+.modal { background:white; border-radius:18px; width:100%; max-width:640px; box-shadow:0 32px 80px rgba(0,0,0,0.3); animation:modalIn 0.35s cubic-bezier(.22,.68,0,1.2) both; overflow:hidden; }
+@keyframes modalIn { from{opacity:0;transform:scale(0.92);} to{opacity:1;transform:scale(1);} }
+.modal-header { background:linear-gradient(135deg,var(--navy2),var(--blue)); padding:1.5rem 2rem; display:flex; align-items:center; justify-content:space-between; }
+.modal-header h3 { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:white; }
+.modal-header p { font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:0.15rem; }
+.modal-close { width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.1); border:none; color:rgba(255,255,255,0.7); font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+.modal-close:hover { background:rgba(255,255,255,0.2); }
+.modal-preview { margin:1.5rem 2rem; border-radius:10px; background:var(--pale); border:1.5px solid var(--light); height:180px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:0.6rem; }
+.doc-lines-wrap { width:60%; display:flex; flex-direction:column; gap:8px; }
+.doc-line { height:10px; background:var(--border); border-radius:3px; }
+.doc-line.short{width:60%;} .doc-line.med{width:80%;}
+.modal-sign-area { padding:0 2rem; }
+.modal-sign-area h4 { font-size:0.85rem; font-weight:800; color:var(--navy); margin-bottom:0.8rem; }
+.sign-pad { border:2px dashed var(--border); border-radius:10px; height:90px; background:var(--pale); position:relative; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:0.82rem; cursor:crosshair; transition:border-color 0.2s; }
+.sign-pad:hover { border-color:var(--sky); }
+.sign-pad.signed { border-color:var(--success); border-style:solid; background:#f0fdf4; }
+.sig-text { font-family:'Playfair Display',serif; font-size:1.8rem; font-style:italic; color:var(--navy); display:none; }
+.sign-pad.signed .sig-placeholder { display:none; }
+.sign-pad.signed .sig-text { display:block; }
+.sig-clear { position:absolute; top:8px; right:8px; background:none; border:none; font-size:0.7rem; color:var(--muted); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700; display:none; }
+.modal-footer { padding:1.5rem 2rem; border-top:1px solid var(--border); display:flex; gap:0.8rem; align-items:center; justify-content:flex-end; }
+.modal-cancel { background:none; border:1.5px solid var(--border); padding:0.7rem 1.4rem; border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-size:0.85rem; font-weight:700; color:var(--muted); }
+.modal-cancel:hover { background:var(--pale); }
+.modal-confirm { background:linear-gradient(135deg,var(--mid),var(--sky)); color:white; border:none; padding:0.7rem 1.8rem; border-radius:8px; font-family:'Nunito',sans-serif; font-size:0.85rem; font-weight:800; cursor:pointer; transition:opacity 0.2s; }
+.modal-confirm:hover { opacity:0.88; }
+.admin-nav-link { display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.5rem;cursor:pointer;font-size:0.86rem;font-weight:600;color:rgba(255,255,255,0.55);transition:background 0.2s,color 0.2s;border-left:3px solid transparent; }
+.admin-nav-link:hover { background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.85); }
+.admin-nav-link.active { background:rgba(245,158,11,0.15);color:white;border-left-color:#f59e0b; }
+.admin-page { display:none; }
+.admin-page.active { display:block;animation:pageIn 0.3s ease both; }
+</style>
+</head>
+<body>
+
+<!-- Transition overlay -->
+<div id="transition-overlay"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW 1: PUBLIC WEBSITE
+═══════════════════════════════════════════════════════════ -->
+<div id="view-public" class="view active">
+
+  <!-- NAV -->
+  <nav id="public-nav">
+    <div class="logo" onclick="scrollToTop()">
+      <div class="logo-icon"><svg width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="16" fill="#0b1f3a"/><text x="50" y="52" font-family="Georgia,serif" font-size="52" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle">W</text><clipPath id="wlogoN"><rect width="100" height="100" rx="16"/></clipPath><g clip-path="url(#wlogoN)"><path d="M-10 68 Q15 50 40 68 Q65 86 90 68 Q115 50 140 68 L140 110 L-10 110Z" fill="#1a4a7a"/><path d="M-10 76 Q15 58 40 76 Q65 94 90 76 Q115 58 140 76 L140 110 L-10 110Z" fill="#2563a8"/><path d="M-10 84 Q15 66 40 84 Q65 102 90 84 Q115 66 140 84 L140 110 L-10 110Z" fill="#3b82c4"/><path d="M-10 92 Q15 74 40 92 Q65 110 90 92 Q115 74 140 92 L140 110 L-10 110Z" fill="#5b9fd4"/><path d="M-10 68 Q15 50 40 68 Q65 86 90 68 Q115 50 140 68" fill="none" stroke="#2563a8" stroke-width="1.5" stroke-linecap="round"/><path d="M-10 76 Q15 58 40 76 Q65 94 90 76 Q115 58 140 76" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round"/><path d="M-10 84 Q15 66 40 84 Q65 102 90 84 Q115 66 140 84" fill="none" stroke="#bfdbfe" stroke-width="1.5" stroke-linecap="round"/><path d="M-10 92 Q15 74 40 92 Q65 110 90 92 Q115 74 140 92" fill="none" stroke="#93c5fd" stroke-width="1.2" stroke-linecap="round"/></g></svg></div>
+      Windward
+    </div>
+    <ul class="nav-links">
+      <li><a href="#properties" onclick="switchView('properties');window.scrollTo(0,0);">Properties</a></li>
+      <li><a href="#amenities" onclick="smoothScroll('amenities')">Amenities</a></li>
+      <li><a href="#locations" onclick="smoothScroll('locations')">Locations</a></li>
+      <li><a href="#neighborhood" onclick="smoothScroll('neighborhood')">Neighborhood</a></li>
+      <li><a href="#contact" onclick="smoothScroll('contact')">Contact</a></li>
+      <li><a class="nav-portal-btn" onclick="goToPortal()">🔑 Resident Login</a></li>
+    </ul>
+    <!-- Mobile hamburger -->
+    <button class="nav-mobile-menu" onclick="toggleMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <!-- Mobile nav dropdown -->
+  <div class="nav-mobile-open" id="mobileNav">
+    <a onclick="switchView('properties');window.scrollTo(0,0);closeMobileNav()">Properties</a>
+    <a onclick="smoothScroll('amenities');closeMobileNav()">Amenities</a>
+    <a onclick="smoothScroll('locations');closeMobileNav()">Locations</a>
+    <a onclick="smoothScroll('neighborhood');closeMobileNav()">Neighborhood</a>
+    <a onclick="smoothScroll('contact');closeMobileNav()">Contact</a>
+    <a onclick="goToPortal();closeMobileNav()" style="color:var(--accent)!important;font-weight:700!important;">🔑 Resident Login</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">🏠 Northampton County, Pennsylvania</div>
+      <h1>Find Your<br><em>Perfect Home</em><br>with Windward</h1>
+      <p class="hero-sub">Quality apartments managed with care in Northampton County, PA. Modern living, responsive management, and a community you'll be proud to call home.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="switchView('properties');window.scrollTo(0,0);">View Properties</button>
+        <button class="btn-ghost" onclick="goToPortal()">🔑 Resident Portal</button>
+      </div>
+    </div>
+    <div class="hero-scroll"><div class="scroll-bar"></div>Scroll</div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat"><span class="stat-n">PA</span><span class="stat-l">Northampton County</span></div>
+    <div class="stat"><span class="stat-n">24/7</span><span class="stat-l">Maintenance Support</span></div>
+    <div class="stat"><span class="stat-n">100%</span><span class="stat-l">Online Payments</span></div>
+    <div class="stat"><span class="stat-n">A+</span><span class="stat-l">Tenant Satisfaction</span></div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-imgs reveal">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80" alt="Apartment interior" class="about-img-main">
+          <div class="about-pill"><strong>25+</strong>Years of<br>Excellence</div>
+          <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&q=80" alt="Modern kitchen" class="about-img-float">
+        </div>
+        <div class="reveal d2">
+          <span class="sec-label">About Windward Properties</span>
+          <div class="divider"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
+          <h2 class="sec-title">More Than a<br>Place to <em>Live</em></h2>
+          <p class="sec-body">Windward Properties offers thoughtfully managed apartments across Northampton County, Pennsylvania. Responsive, transparent, and always on your side.</p>
+          <p class="sec-body" style="margin-top:0.9rem;">From modern kitchens to cat-friendly policies, every Windward property is designed with your comfort and convenience in mind.</p>
+          <div class="feature-tags">
+            <span class="ftag">Cat Friendly</span><span class="ftag">Online Payments</span>
+            <span class="ftag">24/7 Maintenance</span><span class="ftag">In-Unit Laundry</span>
+            <span class="ftag">Parking Included</span><span class="ftag">Modern Appliances</span>
+          </div>
+          <div style="margin-top:2rem;"><button class="btn-primary" onclick="smoothScroll('contact')">Schedule a Tour</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AMENITIES -->
+  <section id="amenities">
+    <div class="container">
+      <div class="reveal" style="text-align:center;max-width:580px;margin:0 auto;">
+        <span class="sec-label">What's Included</span>
+        <div class="divider"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
+        <h2 class="sec-title">Built for <em>Comfortable</em> Living</h2>
+        <p class="sec-body" style="max-width:100%;">Every Windward property comes with standard features and community perks to make daily life easier.</p>
+      </div>
+      <div class="amenities-grid">
+        <div class="am-card reveal"><div class="am-icon">🔧</div><h3>24/7 Maintenance</h3><p>Submit requests online any time. Our team responds fast — because problems don't keep business hours.</p></div>
+        <div class="am-card reveal d1"><div class="am-icon">🐱</div><h3>Cat Friendly</h3><p>We love cats! All Windward properties welcome feline companions. A pet fee of <strong>$25/month</strong> applies per cat. Contact us for more details on our pet policy.</p></div>
+        <div class="am-card reveal d2"><div class="am-icon">🅿️</div><h3>Parking Included</h3><p>Dedicated off-street parking is included with every unit. No hunting for a spot after a long day.</p></div>
+        <div class="am-card reveal d3">
+          <div class="am-icon">💻</div><h3>Online Tenant Portal</h3>
+          <p>Pay rent, submit maintenance requests, view your lease, and manage your account — all in one place.</p>
+          <button onclick="goToPortal()" style="display:inline-block;margin-top:1rem;font-size:0.78rem;font-weight:700;color:var(--mid);background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;padding:0;letter-spacing:0.04em;">Access Portal →</button>
+        </div>
+        <div class="am-card reveal d4"><div class="am-icon">🌿</div><h3>Landscaped Grounds</h3><p>Professionally maintained common areas so you're always proud to come home.</p></div>
+        <div class="am-card reveal d5"><div class="am-icon">📦</div><h3>Package Lockers</h3><p>Secure package lockers at select properties mean your deliveries are always safe.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCATIONS MAP -->
+  <section id="locations" style="padding:6rem 0;background:var(--pale);">
+    <div class="container">
+      <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto 3rem;">
+        <span class="sec-label">Where We Are</span>
+        <div class="divider"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
+        <h2 class="sec-title">Our <em>Locations</em></h2>
+        <p class="sec-body" style="max-width:100%;">All three Windward properties are located in Northampton County, PA — with two properties in Northampton Borough and one in Walnutport, all within easy reach of the Lehigh Valley.</p>
+      </div>
+
+      <!-- Property cards row -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-bottom:2rem;">
+        <div class="reveal loc-card" onclick="focusPin(0)" style="background:white;border-radius:12px;padding:1.3rem 1.5rem;border:2px solid var(--border);cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;">
+          <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.6rem;">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--mid),var(--sky));border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:0.85rem;flex-shrink:0;">1</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--navy);">Carriage House</div>
+          </div>
+          <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.4rem;">📍 1796 Main Street</div>
+          <div style="font-size:0.78rem;color:var(--slate);">Northampton, PA 18067</div>
+        </div>
+        <div class="reveal d1 loc-card" onclick="focusPin(1)" style="background:white;border-radius:12px;padding:1.3rem 1.5rem;border:2px solid var(--border);cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;">
+          <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.6rem;">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--mid),var(--sky));border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:0.85rem;flex-shrink:0;">2</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--navy);">The Barn Apartments</div>
+          </div>
+          <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.4rem;">📍 1775 Franklin Street</div>
+          <div style="font-size:0.78rem;color:var(--slate);">Northampton, PA 18067</div>
+        </div>
+        <div class="reveal d2 loc-card" onclick="focusPin(2)" style="background:white;border-radius:12px;padding:1.3rem 1.5rem;border:2px solid var(--border);cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;">
+          <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.6rem;">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--mid),var(--sky));border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:0.85rem;flex-shrink:0;">3</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--navy);">Windward on the Green</div>
+          </div>
+          <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.4rem;">📍 917 Main Street</div>
+          <div style="font-size:0.78rem;color:var(--slate);">Walnutport, PA 18088</div>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="reveal" style="border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(11,31,58,0.14);border:2px solid var(--border);">
+        <div id="windward-map" style="width:100%;height:480px;"></div>
+      </div>
+      <p style="margin-top:1rem;font-size:0.78rem;color:var(--muted);text-align:center;">Click a property card above to zoom in on the map · <a href="#contact" onclick="smoothScroll('contact')" style="color:var(--sky);text-decoration:none;font-weight:600;">Contact us</a> to schedule a showing</p>
+    </div>
+  </section>
+
+  <!-- NEIGHBORHOOD SECTION -->
+  <section id="neighborhood" style="padding:6rem 0;background:white;">
+    <div class="container">
+      <div class="reveal" style="text-align:center;max-width:620px;margin:0 auto 3.5rem;">
+        <span class="sec-label">Life in Northampton County</span>
+        <div class="divider"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
+        <h2 class="sec-title">Two Great Towns,<br><em>One Great Life</em></h2>
+        <p class="sec-body" style="max-width:100%;">Windward properties are located in both <strong>Northampton Borough</strong> and <strong>Walnutport</strong> — two charming Northampton County communities offering small-town character, outdoor beauty, and easy access to everything the Lehigh Valley has to offer.</p>
+      </div>
+
+      <!-- Category tabs -->
+      <div style="display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:2.5rem;" class="reveal">
+        <button class="nbh-tab active" onclick="switchNbh('all',this)">🗺 All</button>
+        <button class="nbh-tab" onclick="switchNbh('highways',this)">🚗 Highways</button>
+        <button class="nbh-tab" onclick="switchNbh('schools',this)">🎓 Schools</button>
+        <button class="nbh-tab" onclick="switchNbh('parks',this)">🌿 Parks & Outdoors</button>
+        <button class="nbh-tab" onclick="switchNbh('dining',this)">🍽 Dining</button>
+        <button class="nbh-tab" onclick="switchNbh('hospitals',this)">🏥 Healthcare</button>
+        <button class="nbh-tab" onclick="switchNbh('shopping',this)">🛍 Shopping</button>
+        <button class="nbh-tab" onclick="switchNbh('events',this)">🎉 Events</button>
+      </div>
+
+      <style>
+        .nbh-tab {
+          padding:0.55rem 1.2rem;border-radius:999px;font-size:0.8rem;font-weight:700;
+          border:2px solid var(--border);background:white;color:var(--slate);
+          cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;
+        }
+        .nbh-tab:hover { border-color:var(--sky);color:var(--mid); }
+        .nbh-tab.active { background:var(--mid);color:white;border-color:var(--mid); }
+        .nbh-card {
+          background:white;border-radius:14px;padding:1.5rem;
+          border:1.5px solid var(--border);transition:box-shadow 0.25s,transform 0.25s,border-color 0.25s;
+          display:flex;flex-direction:column;gap:0.5rem;
+        }
+        .nbh-card:hover { box-shadow:0 8px 28px rgba(11,31,58,0.1);transform:translateY(-3px);border-color:var(--light); }
+        .nbh-icon-wrap {
+          width:48px;height:48px;border-radius:12px;
+          background:var(--pale);border:1.5px solid var(--light);
+          display:flex;align-items:center;justify-content:center;
+          font-size:1.4rem;margin-bottom:0.4rem;flex-shrink:0;
+        }
+        .nbh-name { font-size:0.92rem;font-weight:800;color:var(--navy); }
+        .nbh-detail { font-size:0.8rem;color:var(--muted);line-height:1.55; }
+        .nbh-dist { font-size:0.72rem;font-weight:700;color:var(--sky);margin-top:0.2rem; }
+        .nbh-grid {
+          display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;
+        }
+        .nbh-item { transition:opacity 0.3s,transform 0.3s; }
+        .nbh-item.hidden { display:none; }
+      </style>
+
+      <div class="nbh-grid reveal" id="nbhGrid">
+
+        <!-- HIGHWAYS -->
+        <div class="nbh-item" data-cat="highways">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🛣️</div>
+            <div class="nbh-name">Route 145</div>
+            <div class="nbh-detail">The main north-south artery connecting both Northampton Borough and Walnutport directly to the Lehigh Valley corridor — making commutes simple from either property.</div>
+            <div class="nbh-dist">📍 Through both towns</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="highways">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🚗</div>
+            <div class="nbh-name">US Route 22</div>
+            <div class="nbh-detail">Major east-west freeway linking Allentown, Bethlehem, and Easton — putting the entire Lehigh Valley within easy reach for commuters.</div>
+            <div class="nbh-dist">⏱ ~15 min south</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="highways">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🏎️</div>
+            <div class="nbh-name">I-78 & I-476</div>
+            <div class="nbh-detail">Quick access to I-78 toward NYC and I-476 (PA Turnpike) toward Philadelphia — ideal for regional commuters and weekend travelers.</div>
+            <div class="nbh-dist">⏱ ~20 min south</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="highways">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🏙️</div>
+            <div class="nbh-name">Allentown & Bethlehem</div>
+            <div class="nbh-detail">Two of Pennsylvania's largest cities are only 20 miles south via Routes 145 and 22 — offering major employers, entertainment, and dining.</div>
+            <div class="nbh-dist">⏱ ~25 min drive</div>
+          </div>
+        </div>
+
+        <!-- SCHOOLS -->
+        <div class="nbh-item" data-cat="schools">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🎓</div>
+            <div class="nbh-name">Northern Lehigh School District</div>
+            <div class="nbh-detail">Walnutport residents are served by Northern Lehigh School District, while Northampton Borough residents are served by the highly rated Northampton Area School District — both offering strong K–12 education.</div>
+            <div class="nbh-dist">📍 Serving both communities</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="schools">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🏫</div>
+            <div class="nbh-name">Lehigh Elementary School</div>
+            <div class="nbh-detail">Local K–6 elementary school serving over 670 students, conveniently located on Blue Mountain Drive right in the community.</div>
+            <div class="nbh-dist">📍 800 Blue Mountain Dr</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="schools">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🎒</div>
+            <div class="nbh-name">Northampton Area School District</div>
+            <div class="nbh-detail">Residents at our Northampton Borough properties (1796 Main St & 1775 Franklin St) are served directly by the well-regarded Northampton Area School District — known for strong academics and community involvement.</div>
+            <div class="nbh-dist">📍 Northampton Borough</div>
+          </div>
+        </div>
+
+        <!-- PARKS & OUTDOORS -->
+        <div class="nbh-item" data-cat="parks">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🚶</div>
+            <div class="nbh-name">Lehigh Canal Trail</div>
+            <div class="nbh-detail">A beloved walking and biking path along the historic Lehigh Canal — perfect for morning jogs, evening strolls, and weekend rides right in town.</div>
+            <div class="nbh-dist">📍 Along the canal</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="parks">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">⚾</div>
+            <div class="nbh-name">Local Parks & Athletic Fields</div>
+            <div class="nbh-detail">Both Northampton Borough and Walnutport have community parks and athletic fields — perfect for weekend recreation, youth sports, and family gatherings year-round.</div>
+            <div class="nbh-dist">📍 In both boroughs</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="parks">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">⛷️</div>
+            <div class="nbh-name">Blue Mountain Resort</div>
+            <div class="nbh-detail">Pennsylvania's highest ski area is right nearby — offering skiing, snowboarding, and summer outdoor adventures against stunning Blue Mountain views.</div>
+            <div class="nbh-dist">⏱ ~15 min drive</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="parks">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🛶</div>
+            <div class="nbh-name">Lehigh River Recreation</div>
+            <div class="nbh-detail">The Lehigh River borders the borough and offers fishing, kayaking, tubing, and scenic walks — a true outdoor gem for nature lovers.</div>
+            <div class="nbh-dist">📍 Borough waterfront</div>
+          </div>
+        </div>
+
+        <!-- DINING -->
+        <div class="nbh-item" data-cat="dining">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🎬</div>
+            <div class="nbh-name">Becky's Drive-In</div>
+            <div class="nbh-detail">A beloved local landmark in neighboring Lehigh Township — a classic drive-in diner and community staple loved by residents of all ages.</div>
+            <div class="nbh-dist">⏱ ~5 min drive</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="dining">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🍝</div>
+            <div class="nbh-name">A Ca Mia's Italian Restaurant</div>
+            <div class="nbh-detail">A highly regarded upscale Italian restaurant nearby in Lehigh Township — perfect for date nights or special occasions just minutes from home.</div>
+            <div class="nbh-dist">⏱ ~5 min drive</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="dining">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🍔</div>
+            <div class="nbh-name">Local & Chain Dining</div>
+            <div class="nbh-detail">Both Northampton Borough and Walnutport have a variety of local favorites and dining options nearby — with even more choices minutes away in neighboring Catasauqua, Slatington, and the greater Lehigh Valley.</div>
+            <div class="nbh-dist">📍 In & around both towns</div>
+          </div>
+        </div>
+
+        <!-- HEALTHCARE -->
+        <div class="nbh-item" data-cat="hospitals">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🏥</div>
+            <div class="nbh-name">St. Luke's Hospital – Walnutport</div>
+            <div class="nbh-detail">A St. Luke's University Health Network facility located right in Walnutport — convenient healthcare for residents at our 917 Main St property without leaving the community.</div>
+            <div class="nbh-dist">📍 330 N Best Ave, Walnutport</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="hospitals">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">⚕️</div>
+            <div class="nbh-name">St. Luke's – Palmerton Campus</div>
+            <div class="nbh-detail">Full-service hospital campus in nearby Palmerton, PA — part of the acclaimed St. Luke's University Health Network serving Carbon and Northampton counties.</div>
+            <div class="nbh-dist">⏱ ~15 min north</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="hospitals">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🩺</div>
+            <div class="nbh-name">Lehigh Valley Hospital – Cedar Crest</div>
+            <div class="nbh-detail">One of Pennsylvania's top-rated health systems, Lehigh Valley Health Network's flagship Cedar Crest campus in Allentown is easily accessible via Route 145 and Route 22.</div>
+            <div class="nbh-dist">⏱ ~25 min south</div>
+          </div>
+        </div>
+
+        <!-- SHOPPING -->
+        <div class="nbh-item" data-cat="shopping">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🛒</div>
+            <div class="nbh-name">Giant Food Market</div>
+            <div class="nbh-detail">A full-service Giant supermarket serving the Walnutport area, and additional grocery options conveniently accessible from our Northampton Borough properties — everyday essentials always close by.</div>
+            <div class="nbh-dist">📍 Near both communities</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="shopping">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🏬</div>
+            <div class="nbh-name">Shopping in Both Boroughs</div>
+            <div class="nbh-detail">Northampton Borough has a lively Main Street with local shops and services, while Walnutport's retail strip along Main Street puts everyday conveniences within walking distance of all three properties.</div>
+            <div class="nbh-dist">📍 Main Street, both towns</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="shopping">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🎡</div>
+            <div class="nbh-name">Lehigh Valley Mall</div>
+            <div class="nbh-detail">The region's premier shopping destination in Whitehall — featuring major retailers, dining, and entertainment. Easily accessible via Route 145 south to Route 22.</div>
+            <div class="nbh-dist">⏱ ~25 min south</div>
+          </div>
+        </div>
+
+        <!-- EVENTS -->
+        <div class="nbh-item" data-cat="events">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🎃</div>
+            <div class="nbh-name">Jack Frost Halloween Parade</div>
+            <div class="nbh-detail">Northampton Borough's beloved annual Halloween parade — known locally as the Jack Frost Parade — winds through Main Street every October. The parade typically takes place on the second to last Thursday of October at 7pm, starting at the corner of Smith and Laubach, continuing up Laubach to 19th Street, along 19th to Main, and down Main Street to Lerchenmiller Drive. A true community tradition right outside your door.</div>
+            <div class="nbh-dist">📅 October 2026 · Main St, Northampton</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="events">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🎆</div>
+            <div class="nbh-name">Lehigh Valley Community Events</div>
+            <div class="nbh-detail">The Lehigh Valley hosts year-round events including Musikfest in Bethlehem each August, the Great Allentown Fair in late August/early September, and holiday festivals throughout the region — all within easy reach of our properties.</div>
+            <div class="nbh-dist">⏱ 15–30 min away</div>
+          </div>
+        </div>
+        <div class="nbh-item" data-cat="events">
+          <div class="nbh-card">
+            <div class="nbh-icon-wrap">🌳</div>
+            <div class="nbh-name">Northampton Farmers Market</div>
+            <div class="nbh-detail">Local produce, baked goods, and crafts at the Northampton area farmers markets held seasonally. A great way to connect with the local community and support small businesses right in the borough.</div>
+            <div class="nbh-dist">📍 Northampton Borough</div>
+          </div>
+        </div>
+
+      </div><!-- end nbhGrid -->
+
+      <!-- Fun fact strip -->
+      <div class="reveal" style="margin-top:3rem;background:linear-gradient(135deg,var(--navy2),var(--blue));border-radius:16px;padding:2rem 2.5rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;text-align:center;">
+        <div><div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--accent);line-height:1;">2</div><div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:0.3rem;">Great Boroughs</div></div>
+        <div><div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--accent);line-height:1;">20 mi</div><div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:0.3rem;">To Allentown</div></div>
+        <div><div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--accent);line-height:1;">A+</div><div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:0.3rem;">Safety Rating</div></div>
+        <div><div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--accent);line-height:1;">4 Seasons</div><div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:0.3rem;">Of Outdoor Fun</div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RESIDENT PORTAL CTA BANNER -->
+  <div style="background:linear-gradient(135deg,var(--navy),var(--blue));padding:4rem 0;">
+    <div class="container">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#7dd3fc;margin-bottom:0.6rem;">Current Residents</div>
+          <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:white;line-height:1.15;margin-bottom:0.6rem;">Access Your <em style="font-style:italic;color:#7dd3fc;">Resident Portal</em></h2>
+          <p style="color:rgba(255,255,255,0.55);font-size:0.95rem;max-width:480px;line-height:1.65;">Pay rent, submit maintenance requests, sign your lease documents, and manage your account — all in one place.</p>
+          <div style="display:flex;gap:1.2rem;margin-top:1rem;flex-wrap:wrap;">
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);font-weight:600;">✅ Pay Rent Online</div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);font-weight:600;">✅ Maintenance Requests</div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);font-weight:600;">✅ DocuSign Documents</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.8rem;">
+          <button onclick="goToPortal()" class="btn-primary" style="font-size:0.95rem;padding:1rem 2.4rem;white-space:nowrap;">🔑 Sign In to Portal</button>
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.3);">Secure · 256-bit SSL Encrypted</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact-section">
+    <div class="container">
+      <div class="contact-grid">
+        <div>
+          <span class="sec-label reveal">Get in Touch</span>
+          <div class="divider reveal"><div class="div-line"></div><div class="div-diamond"></div><div class="div-line"></div></div>
+          <h2 class="sec-title reveal">We're Here<br>to <em>Help</em></h2>
+          <p class="sec-body reveal">Have a question about a unit? Want to schedule a showing? Reach out — our team is responsive and friendly.</p>
+          <div class="contact-cards">
+            <div class="contact-card reveal d1"><div class="cc-icon">📍</div><div><div class="cc-label">Service Area</div><div class="cc-val">Northampton County, Pennsylvania</div></div></div>
+            <div class="contact-card reveal d2"><div class="cc-icon">📞</div><div><div class="cc-label">Phone</div><div class="cc-val"><a href="tel:7324924201">(732) 492-4201</a></div></div></div>
+            <div class="contact-card reveal d3"><div class="cc-icon">✉️</div><div><div class="cc-label">Email</div><div class="cc-val"><a href="mailto:contact.windward.live@gmail.com">contact.windward.live@gmail.com</a></div></div></div>
+            <div class="contact-card reveal d4"><div class="cc-icon">🕐</div><div><div class="cc-label">Office Hours</div><div class="cc-val">Mon–Fri 9am–5pm · Sat 10am–3pm</div></div></div>
+          </div>
+        </div>
+        <div class="contact-form-card reveal d2">
+          <h3>Send Us a Message</h3>
+          <div class="cf-row"><div class="cf-group"><label>First Name</label><input type="text" id="cf-fname" placeholder="Jane"></div><div class="cf-group"><label>Last Name</label><input type="text" id="cf-lname" placeholder="Smith"></div></div>
+          <div class="cf-group"><label>Email Address</label><input type="email" id="cf-email" placeholder="jane@email.com"></div>
+          <div class="cf-group"><label>Phone Number</label><input type="tel" id="cf-phone" placeholder="(610) 000-0000"></div>
+          <div class="cf-group"><label>I'm Interested In</label><select id="cf-interest"><option value="">Select one</option><option>Renting an apartment / condo</option><option>Scheduling a showing</option><option>Current tenant — maintenance request</option><option>Other</option></select></div>
+          <div class="cf-group"><label>Message</label><textarea id="cf-message" placeholder="Tell us what you're looking for..."></textarea></div>
+          <button class="cf-submit" onclick="submitContactForm(this)">Send Message →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo"><svg width="30" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:6px;"><rect width="100" height="100" rx="16" fill="#0b1f3a"/><text x="50" y="52" font-family="Georgia,serif" font-size="52" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle">W</text><clipPath id="wlogoF"><rect width="100" height="100" rx="16"/></clipPath><g clip-path="url(#wlogoF)"><path d="M-10 68 Q15 50 40 68 Q65 86 90 68 Q115 50 140 68 L140 110 L-10 110Z" fill="#1a4a7a"/><path d="M-10 76 Q15 58 40 76 Q65 94 90 76 Q115 58 140 76 L140 110 L-10 110Z" fill="#2563a8"/><path d="M-10 84 Q15 66 40 84 Q65 102 90 84 Q115 66 140 84" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round"/></g></svg> Windward Properties</div>
+      <ul class="footer-links">
+        <li><a onclick="smoothScroll('properties')">Properties</a></li>
+        <li><a onclick="smoothScroll('amenities')">Amenities</a></li>
+        <li><a onclick="smoothScroll('locations')">Locations</a></li>
+        <li><a onclick="smoothScroll('contact')">Contact</a></li>
+        <li><a onclick="goToPortal()" style="color:rgba(14,165,233,0.6)!important;">🔑 Resident Portal</a></li>
+        <li><a onclick="switchView('privacy');window.scrollTo(0,0);">Privacy Policy</a></li>
+        <li><a href="#">Fair Housing</a></li>
+      </ul>
+      <span class="footer-copy">© 2025 Windward Properties, Northampton County, PA. All rights reserved.</span>
+    </div>
+  </footer>
+
+</div><!-- end view-public -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW 5: PROPERTIES LISTING
+═══════════════════════════════════════════════════════════ -->
+<div id="view-properties" class="view">
+
+  <!-- TOP NAV BANNER -->
+  <div style="background:var(--navy);padding:0.9rem 3rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+    <div style="display:flex;align-items:center;gap:1.5rem;">
+      <button onclick="switchView('public');window.scrollTo(0,0);" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:0.4rem;padding:0;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">← Home</button>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,0.15);"></div>
+      <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:white;">Properties</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <button onclick="switchView('public');setTimeout(()=>smoothScroll('contact'),350);" style="background:none;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.8);font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;padding:0.45rem 1rem;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">Contact Us</button>
+      <button onclick="goToPortal()" style="background:var(--accent);border:none;color:white;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;padding:0.45rem 1rem;border-radius:6px;">🔑 Resident Login</button>
+    </div>
+  </div>
+
+  <!-- HERO BANNER -->
+  <div style="background:linear-gradient(135deg,var(--navy2) 0%,var(--blue) 100%);padding:4rem 3rem;position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1600&q=80') center/cover no-repeat;opacity:0.15;"></div>
+    <div style="position:relative;z-index:1;max-width:1180px;margin:0 auto;">
+      <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#7dd3fc;margin-bottom:0.6rem;">Northampton County, Pennsylvania</div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:white;margin-bottom:0.6rem;">Our <em style="font-style:italic;color:#7dd3fc;">Properties</em></h1>
+      <p style="color:rgba(255,255,255,0.6);font-size:0.95rem;max-width:500px;">Three communities across Northampton County — each with its own character. Click any property to explore floor plans, photos, and pricing.</p>
+    </div>
+  </div>
+
+  <!-- PROPERTY CARDS -->
+  <div style="background:var(--pale);padding:3rem;">
+    <div style="max-width:1180px;margin:0 auto;">
+      <div class="props-grid">
+        <div class="prop-card" onclick="openPropertyPage('carriage')" style="cursor:pointer;">
+          <div class="prop-img"><img src="northampton-1.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Carriage House"></div>
+          <div class="prop-body">
+            <span class="prop-badge" style="background:#dbeafe;color:#1e40af;">📍 Northampton, PA</span>
+            <div class="prop-name">Carriage House Apartments</div>
+            <div class="prop-loc">📍 1796 Main St, Northampton, PA 18067</div>
+            <div class="prop-specs"><span class="prop-spec">🛏 1 & 2 Bed</span></div>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0.7rem;background:var(--pale);border-radius:6px;font-size:0.82rem;"><span style="font-weight:700;color:var(--text);">🛏 1 Bedroom</span><span style="font-weight:800;color:var(--mid);">$1,250<span style="font-weight:500;color:var(--muted);font-size:0.72rem;">/mo</span></span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0.7rem;background:var(--pale);border-radius:6px;font-size:0.82rem;"><span style="font-weight:700;color:var(--text);">🛏 2 Bedroom</span><span style="font-weight:800;color:var(--mid);">$1,550–$1,775<span style="font-weight:500;color:var(--muted);font-size:0.72rem;">/mo</span></span></div>
+            </div>
+            <div class="prop-footer">
+              <div style="font-size:0.78rem;color:var(--muted);">Starting from <span style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--mid);">$1,250</span><span style="font-size:0.72rem;">/mo</span></div>
+              <button class="btn-sm" onclick="event.stopPropagation();openPropertyPage('carriage')">View Property →</button>
+            </div>
+          </div>
+        </div>
+        <div class="prop-card" onclick="openPropertyPage('barn')" style="cursor:pointer;">
+          <div class="prop-img"><img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80" style="width:100%;height:100%;object-fit:cover;" alt="The Barn"></div>
+          <div class="prop-body">
+            <span class="prop-badge" style="background:#dbeafe;color:#1e40af;">📍 Northampton, PA</span>
+            <div class="prop-name">The Barn Apartments</div>
+            <div class="prop-loc">📍 1775 Franklin St, Northampton, PA 18067</div>
+            <div class="prop-specs"><span class="prop-spec">🛏 1 & 2 Bed</span></div>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0.7rem;background:var(--pale);border-radius:6px;font-size:0.82rem;"><span style="font-weight:700;color:var(--text);">🛏 1 Bedroom</span><span style="font-weight:800;color:var(--mid);">$1,550<span style="font-weight:500;color:var(--muted);font-size:0.72rem;">/mo</span></span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0.7rem;background:var(--pale);border-radius:6px;font-size:0.82rem;"><span style="font-weight:700;color:var(--text);">🛏 2 Bedroom</span><span style="font-weight:800;color:var(--mid);">$1,725<span style="font-weight:500;color:var(--muted);font-size:0.72rem;">/mo</span></span></div>
+            </div>
+            <div class="prop-footer">
+              <div style="font-size:0.78rem;color:var(--muted);">Starting from <span style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--mid);">$1,550</span><span style="font-size:0.72rem;">/mo</span></div>
+              <button class="btn-sm" onclick="event.stopPropagation();openPropertyPage('barn')">View Property →</button>
+            </div>
+          </div>
+        </div>
+        <div class="prop-card" onclick="openPropertyPage('green')" style="cursor:pointer;">
+          <div class="prop-img"><img src="walnutport-1.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Windward on the Green"></div>
+          <div class="prop-body">
+            <span class="prop-badge" style="background:#f0fdf4;color:#065f46;">📍 Walnutport, PA</span>
+            <div class="prop-name">Windward on the Green</div>
+            <div class="prop-loc">📍 917 Main St, Walnutport, PA 18088</div>
+            <div class="prop-specs"><span class="prop-spec">🛏 1 & 2 Bed</span></div>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0.7rem;background:var(--pale);border-radius:6px;font-size:0.82rem;"><span style="font-weight:700;color:var(--text);">🛏 1 Bedroom</span><span style="font-weight:800;color:var(--mid);">$950–$1,200<span style="font-weight:500;color:var(--muted);font-size:0.72rem;">/mo</span></span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0.7rem;background:var(--pale);border-radius:6px;font-size:0.82rem;"><span style="font-weight:700;color:var(--text);">🛏 2 Bedroom</span><span style="font-weight:800;color:var(--mid);">$1,250–$1,450<span style="font-weight:500;color:var(--muted);font-size:0.72rem;">/mo</span></span></div>
+            </div>
+            <div class="prop-footer">
+              <div style="font-size:0.78rem;color:var(--muted);">Starting from <span style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--mid);">$950</span><span style="font-size:0.72rem;">/mo</span></div>
+              <button class="btn-sm" onclick="event.stopPropagation();openPropertyPage('green')">View Property →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA BANNER -->
+      <div style="margin-top:3rem;background:linear-gradient(135deg,var(--navy2),var(--blue));border-radius:16px;padding:2.5rem 3rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#7dd3fc;margin-bottom:0.5rem;">Ready to apply?</div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:white;margin-bottom:0.4rem;">Find Your Perfect Home</h3>
+          <p style="color:rgba(255,255,255,0.55);font-size:0.88rem;">Contact us to schedule a showing or ask about availability.</p>
+        </div>
+        <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+          <button onclick="switchView('public');setTimeout(()=>smoothScroll('contact'),350);" class="btn-primary">Schedule a Showing</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div id="view-property" class="view">
+
+  <!-- TOP NAV BANNER -->
+  <div style="background:var(--navy);padding:0.9rem 3rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+    <div style="display:flex;align-items:center;gap:1.5rem;">
+      <button onclick="switchView('public');window.scrollTo(0,0);" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:0.4rem;padding:0;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">← Home</button>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,0.15);"></div>
+      <button onclick="closePropertyPage()" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;padding:0;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Properties</button>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,0.15);"></div>
+      <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:white;" id="prop-nav-title">Property</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <button onclick="switchView('public');setTimeout(()=>smoothScroll('contact'),350);" style="background:none;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.8);font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;padding:0.45rem 1rem;border-radius:6px;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">Contact Us</button>
+      <button onclick="goToPortal()" style="background:var(--accent);border:none;color:white;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;padding:0.45rem 1rem;border-radius:6px;">🔑 Resident Login</button>
+    </div>
+  </div>
+
+  <!-- HERO — changes per property -->
+  <div class="prop-page-hero" id="prop-hero">
+    <img id="prop-hero-img" src="" alt="Property">
+    <div class="prop-page-hero-bg"></div>
+    <div class="prop-page-hero-content">
+      <div class="prop-page-tag" id="prop-hero-tag">Northampton, PA</div>
+      <div class="prop-page-title" id="prop-hero-title">Property Name</div>
+      <div class="prop-page-addr" id="prop-hero-addr">📍 Address</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="prop-page-body">
+    <div class="prop-page-grid">
+
+      <!-- LEFT COLUMN — Photos + Virtual Tour -->
+      <div>
+        <!-- PHOTO GALLERY -->
+        <div class="prop-page-section-title">📸 Gallery</div>
+        <div class="prop-photo-grid" id="prop-photos"></div>
+
+        <!-- VIRTUAL TOUR PLACEHOLDER -->
+        <div class="prop-virtual-tour">
+          <div style="font-size:3rem;">🎬</div>
+          <h3>Virtual Tour</h3>
+          <p>A walkthrough video tour of this property is coming soon.<br>Contact us to schedule an in-person showing.</p>
+          <button class="btn-primary" style="margin-top:1.2rem;" onclick="switchView('public');setTimeout(()=>smoothScroll('contact'),400)">Schedule a Showing</button>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN — Floor Plans + Sidebar -->
+      <div>
+        <!-- FLOOR PLANS -->
+        <div class="prop-page-section-title">📐 Floor Plans & Pricing</div>
+        <div class="prop-floor-plans" id="prop-floor-plans" style="margin-bottom:1.8rem;"></div>
+
+        <!-- SIDEBAR INFO CARD -->
+        <div class="prop-sidebar-card">
+          <div class="prop-sidebar-header">
+            <h3 id="prop-sidebar-title">Property Name</h3>
+            <p id="prop-sidebar-addr">Address</p>
+          </div>
+          <div class="prop-sidebar-body">
+            <div id="prop-info-rows"></div>
+            <button class="btn-primary" style="width:100%;margin-top:1.2rem;text-align:center;" onclick="switchView('public');setTimeout(()=>smoothScroll('contact'),400)">📅 Schedule a Showing</button>
+            <button class="btn-sm" style="width:100%;margin-top:0.6rem;text-align:center;background:var(--pale);color:var(--mid);border:1.5px solid var(--light);" onclick="switchView('public');setTimeout(()=>smoothScroll('contact'),400)">✉️ Send an Inquiry</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BACK BUTTON AT BOTTOM -->
+    <div style="margin-top:3rem;">
+      <button onclick="closePropertyPage()" style="background:var(--pale);color:var(--navy);border:1.5px solid var(--border);padding:0.7rem 1.4rem;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;display:inline-flex;align-items:center;gap:0.4rem;transition:background 0.2s;" onmouseover="this.style.background='var(--light)'" onmouseout="this.style.background='var(--pale)'">← Back to All Properties</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW 2: RESIDENT PORTAL
+═══════════════════════════════════════════════════════════ -->
+<div id="view-portal" class="view">
+
+  <!-- LOGIN SCREEN -->
+  <div id="portal-login-screen">
+    <div class="login-bg-circles">
+      <div class="circle c1"></div><div class="circle c2"></div><div class="circle c3"></div>
+    </div>
+    <button class="back-to-site" onclick="backToSite()">← Back to Windward.com</button>
+    <div class="login-card">
+      <div class="login-top">
+        <div class="login-logo"><svg width="42" height="42" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="16" fill="#0b1f3a"/><text x="50" y="52" font-family="Georgia,serif" font-size="52" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle">W</text><clipPath id="wlogoL"><rect width="100" height="100" rx="16"/></clipPath><g clip-path="url(#wlogoL)"><path d="M-10 68 Q15 50 40 68 Q65 86 90 68 Q115 50 140 68 L140 110 L-10 110Z" fill="#1a4a7a"/><path d="M-10 76 Q15 58 40 76 Q65 94 90 76 Q115 58 140 76 L140 110 L-10 110Z" fill="#2563a8"/><path d="M-10 84 Q15 66 40 84 Q65 102 90 84 Q115 66 140 84 L140 110 L-10 110Z" fill="#3b82c4"/><path d="M-10 92 Q15 74 40 92 Q65 110 90 92 Q115 74 140 92 L140 110 L-10 110Z" fill="#5b9fd4"/><path d="M-10 68 Q15 50 40 68 Q65 86 90 68 Q115 50 140 68" fill="none" stroke="#2563a8" stroke-width="1.5" stroke-linecap="round"/><path d="M-10 76 Q15 58 40 76 Q65 94 90 76 Q115 58 140 76" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round"/><path d="M-10 84 Q15 66 40 84 Q65 102 90 84 Q115 66 140 84" fill="none" stroke="#bfdbfe" stroke-width="1.5" stroke-linecap="round"/><path d="M-10 92 Q15 74 40 92 Q65 110 90 92 Q115 74 140 92" fill="none" stroke="#93c5fd" stroke-width="1.2" stroke-linecap="round"/></g></svg><span>Windward</span></div>
+        <h2>Resident Portal</h2>
+        <p>Sign in to manage your home</p>
+      </div>
+      <div class="login-body">
+        <div class="login-error" id="loginError">Invalid email or password. Please try again.</div>
+        <div class="lf-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" placeholder="you@email.com" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="lf-group">
+          <label>Password</label>
+          <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="login-forgot"><a href="#" onclick="showForgotPassword();return false;">Forgot password?</a></div>
+        <button class="login-btn" onclick="doLogin()">Sign In to Portal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SET PASSWORD SCREEN (shown after invite link click) -->
+  <div id="portal-setpassword-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 60%,#1e6fa8 100%);position:relative;overflow:hidden;">
+    <div class="login-bg-circles">
+      <div class="circle c1"></div><div class="circle c2"></div><div class="circle c3"></div>
+    </div>
+    <div class="login-card" style="animation:cardUp 0.7s cubic-bezier(.22,.68,0,1.2) both;">
+      <div class="login-top">
+        <div class="login-logo"><svg width="42" height="42" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="16" fill="#0b1f3a"/><text x="50" y="52" font-family="Georgia,serif" font-size="52" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle">W</text><clipPath id="wlogoL"><rect width="100" height="100" rx="16"/></clipPath><g clip-path="url(#wlogoL)"><path d="M-10 68 Q15 50 40 68 Q65 86 90 68 Q115 50 140 68 L140 110 L-10 110Z" fill="#1a4a7a"/><path d="M-10 76 Q15 58 40 76 Q65 94 90 76 Q115 58 140 76 L140 110 L-10 110Z" fill="#2563a8"/><path d="M-10 84 Q15 66 40 84 Q65 102 90 84 Q115 66 140 84 L140 110 L-10 110Z" fill="#3b82c4"/><path d="M-10 92 Q15 74 40 92 Q65 110 90 92 Q115 74 140 92 L140 110 L-10 110Z" fill="#5b9fd4"/><path d="M-10 68 Q15 50 40 68 Q65 86 90 68 Q115 50 140 68" fill="none" stroke="#2563a8" stroke-width="1.5" stroke-linecap="round"/><path d="M-10 76 Q15 58 40 76 Q65 94 90 76 Q115 58 140 76" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round"/><path d="M-10 84 Q15 66 40 84 Q65 102 90 84 Q115 66 140 84" fill="none" stroke="#bfdbfe" stroke-width="1.5" stroke-linecap="round"/><path d="M-10 92 Q15 74 40 92 Q65 110 90 92 Q115 74 140 92" fill="none" stroke="#93c5fd" stroke-width="1.2" stroke-linecap="round"/></g></svg><span>Windward</span></div>
+        <h2>Welcome Home!</h2>
+        <p>Set your password to access your portal</p>
+      </div>
+      <div class="login-body">
+        <div class="login-error" id="setPassError">Passwords do not match. Please try again.</div>
+        <div style="background:var(--pale);border:1px solid var(--light);border-radius:8px;padding:0.8rem 1rem;margin-bottom:1.2rem;font-size:0.82rem;color:var(--slate);line-height:1.55;">
+          🔒 Choose a strong password with at least 8 characters including a number and uppercase letter.
+        </div>
+        <div class="lf-group"><label>New Password</label><input type="password" id="newPass" placeholder="Min. 8 characters" onkeydown="if(event.key==='Enter')doSetPassword()"></div>
+        <div class="lf-group"><label>Confirm Password</label><input type="password" id="confirmPass" placeholder="Repeat your password" onkeydown="if(event.key==='Enter')doSetPassword()"></div>
+        <button class="login-btn" onclick="doSetPassword()">Set Password & Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD SCREEN -->
+  <div id="portal-forgot-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 60%,#1e6fa8 100%);position:relative;overflow:hidden;">
+    <div class="login-bg-circles">
+      <div class="circle c1"></div><div class="circle c2"></div><div class="circle c3"></div>
+    </div>
+    <div class="login-card">
+      <div class="login-top">
+        <div class="login-logo"><svg width="42" height="42" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="16" fill="#0b1f3a"/><text x="50" y="52" font-family="Georgia,serif" font-size="52" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle">W</text><clipPath id="wlogoL"><rect width="100" height="100" rx="16"/></clipPath><g clip-path="url(#wlogoL)"><path d="M-10 68 Q15 50 40 68 Q65 86 90 68 Q115 50 140 68 L140 110 L-10 110Z" fill="#1a4a7a"/><path d="M-10 76 Q15 58 40 76 Q65 94 90 76 Q115 58 140 76 L140 110 L-10 110Z" fill="#2563a8"/><path d="M-10 84 Q15 66 40 84 Q65 102 90 84 Q115 66 140 84 L140 110 L-10 110Z" fill="#3b82c4"/><path d="M-10 92 Q15 74 40 92 Q65 110 90 92 Q115 74 140 92 L140 110 L-10 110Z" fill="#5b9fd4"/><path d="M-10 68 Q15 50 40 68 Q65 86 90 68 Q115 50 140 68" fill="none" stroke="#2563a8" stroke-width="1.5" stroke-linecap="round"/><path d="M-10 76 Q15 58 40 76 Q65 94 90 76 Q115 58 140 76" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round"/><path d="M-10 84 Q15 66 40 84 Q65 102 90 84 Q115 66 140 84" fill="none" stroke="#bfdbfe" stroke-width="1.5" stroke-linecap="round"/><path d="M-10 92 Q15 74 40 92 Q65 110 90 92 Q115 74 140 92" fill="none" stroke="#93c5fd" stroke-width="1.2" stroke-linecap="round"/></g></svg><span>Windward</span></div>
+        <h2>Reset Password</h2>
+        <p>We'll send you a reset link</p>
+      </div>
+      <div class="login-body">
+        <div class="login-error" id="forgotError"></div>
+        <div id="forgotSuccess" style="display:none;background:#d1fae5;border:1px solid #a7f3d0;color:#065f46;font-size:0.82rem;font-weight:600;padding:0.7rem 1rem;border-radius:8px;margin-bottom:1.2rem;">
+          ✅ Reset link sent! Check your email.
+        </div>
+        <div class="lf-group"><label>Email Address</label><input type="email" id="forgotEmail" placeholder="you@email.com" onkeydown="if(event.key==='Enter')doForgotPassword()"></div>
+        <button class="login-btn" onclick="doForgotPassword()">Send Reset Link</button>
+        <div style="text-align:center;margin-top:1rem;">
+          <a href="#" onclick="showLogin()" style="font-size:0.8rem;color:var(--sky);font-weight:600;text-decoration:none;">← Back to Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PORTAL DASHBOARD -->
+  <div id="portal-dashboard"></div><!-- end portal-dashboard -->
+
+</div><!-- end view-portal -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW 3: LANDLORD ADMIN DASHBOARD
+═══════════════════════════════════════════════════════════ -->
+<div id="view-admin" class="view"></div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: EMPLOYEE PORTAL
+═══════════════════════════════════════════════════════════ -->
+<div id="view-employee" class="view"></div>
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: PRIVACY POLICY
+═══════════════════════════════════════════════════════════ -->
+<div id="view-privacy" class="view">
+  <div style="background:var(--navy);padding:0.9rem 3rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.2);">
+    <div style="display:flex;align-items:center;gap:1.5rem;">
+      <button onclick="switchView('public');window.scrollTo(0,0);" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;padding:0;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">← Back to Home</button>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,0.15);"></div>
+      <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:white;">Privacy Policy</div>
+    </div>
+  </div>
+  <div style="max-width:800px;margin:0 auto;padding:4rem 2rem 6rem;">
+    <div style="margin-bottom:2.5rem;">
+      <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:0.5rem;">Legal</div>
+      <h1 style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:700;color:var(--navy);margin-bottom:0.5rem;">Privacy Policy</h1>
+      <p style="color:var(--muted);font-size:0.88rem;">Last updated: June 2026</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2.5rem;font-size:0.93rem;line-height:1.8;color:var(--slate);">
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:0.8rem;">1. Introduction</h2><p>Windward Properties ("we," "us," or "our") operates windward.live and the Windward Resident Portal. This Privacy Policy explains how we collect, use, and protect your personal information when you visit our website or use our services. By using our site you agree to the practices described in this policy.</p></div>
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:0.8rem;">2. Information We Collect</h2><p style="margin-bottom:0.8rem;"><strong style="color:var(--navy);">Contact Form Inquiries</strong><br>When you submit our contact form we collect your name, email address, phone number, and message content. This information is used solely to respond to your inquiry.</p><p style="margin-bottom:0.8rem;"><strong style="color:var(--navy);">Resident Portal Accounts</strong><br>For tenants using the Resident Portal we collect your name, email address, phone number, unit information, lease details, and payment history. This information is necessary to provide property management services.</p><p><strong style="color:var(--navy);">Payment Information</strong><br>Payments are processed securely through Stripe. We do not store your card number, CVV, or full payment details on our servers. Stripe's privacy policy governs how your payment data is handled.</p></div>
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:0.8rem;">3. How We Use Your Information</h2><p>We use the information we collect to:</p><ul style="margin-top:0.6rem;padding-left:1.5rem;display:flex;flex-direction:column;gap:0.4rem;"><li>Respond to inquiries and schedule showings</li><li>Manage your tenancy and lease agreement</li><li>Process rent payments and maintain payment history</li><li>Send maintenance request updates</li><li>Send important notices about your tenancy</li><li>Comply with legal obligations as a landlord</li></ul><p style="margin-top:0.8rem;">We do not sell, trade, or share your personal information with third parties for marketing purposes.</p></div>
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:0.8rem;">4. Third Party Services</h2><p style="margin-bottom:0.8rem;">Our website uses the following third party services, each governed by their own privacy policies:</p><ul style="padding-left:1.5rem;display:flex;flex-direction:column;gap:0.5rem;"><li><strong style="color:var(--navy);">Supabase</strong> — Secure database and authentication. Your account credentials and tenant data are stored on Supabase's servers with industry-standard encryption.</li><li><strong style="color:var(--navy);">Stripe</strong> — Payment processing. Card details are handled entirely by Stripe and are never stored on our servers. Stripe is PCI DSS compliant.</li><li><strong style="color:var(--navy);">DocuSign</strong> — Electronic document signing. Lease agreements signed through DocuSign are stored securely on DocuSign's servers.</li><li><strong style="color:var(--navy);">Google Maps</strong> — Location display on our website. Google's privacy policy governs data collected through map interactions.</li><li><strong style="color:var(--navy);">Resend</strong> — Email delivery for contact form confirmations and notifications.</li></ul></div>
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:0.8rem;">5. Data Security</h2><p>We implement industry-standard security measures including:</p><ul style="margin-top:0.6rem;padding-left:1.5rem;display:flex;flex-direction:column;gap:0.4rem;"><li>HTTPS encryption for all data in transit</li><li>Row Level Security so tenants can only access their own data</li><li>Secure session management that clears on browser close</li><li>No third party advertising trackers or session recorders on our site</li><li>All API keys stored in secure server environments, never in public code</li></ul></div>
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:0.8rem;">6. Cookies</h2><p>Our website uses minimal cookies necessary for authentication and session management. We do not use advertising cookies or third party tracking cookies. Google Maps may set cookies when you interact with the map on our locations page.</p></div>
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:0.8rem;">7. Your Rights</h2><p>As a resident or site visitor you have the right to:</p><ul style="margin-top:0.6rem;padding-left:1.5rem;display:flex;flex-direction:column;gap:0.4rem;"><li>Request a copy of the personal information we hold about you</li><li>Request correction of inaccurate information</li><li>Request deletion of your data after your tenancy ends</li><li>Opt out of non-essential communications</li></ul><p style="margin-top:0.8rem;">To exercise these rights contact us at <a href="mailto:contact.windward.live@gmail.com" style="color:var(--accent);">contact.windward.live@gmail.com</a>.</p></div>
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:0.8rem;">8. Children's Privacy</h2><p>Our services are not directed to individuals under 18 years of age. We do not knowingly collect personal information from minors.</p></div>
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:0.8rem;">9. Changes to This Policy</h2><p>We may update this Privacy Policy from time to time. We will notify current tenants of any significant changes via email. Continued use of our website after changes constitutes acceptance of the updated policy.</p></div>
+      <div><h2 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:0.8rem;">10. Contact Us</h2><p>If you have questions about this Privacy Policy please contact us:</p><div style="margin-top:1rem;padding:1.5rem;background:var(--pale);border-radius:12px;border:1px solid var(--border);"><div style="font-weight:700;color:var(--navy);margin-bottom:0.3rem;">Windward Properties</div><div style="color:var(--muted);font-size:0.88rem;">Northampton County, Pennsylvania</div><div style="margin-top:0.8rem;display:flex;flex-direction:column;gap:0.4rem;"><a href="mailto:contact.windward.live@gmail.com" style="color:var(--accent);font-size:0.88rem;">✉️ contact.windward.live@gmail.com</a><a href="tel:7324924201" style="color:var(--accent);font-size:0.88rem;">📞 (732) 492-4201</a></div></div></div>
+    </div>
+    <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);">
+      <button onclick="switchView('public');window.scrollTo(0,0);" style="background:var(--pale);color:var(--navy);border:1.5px solid var(--border);padding:0.7rem 1.4rem;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;">← Back to Home</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="docModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h3 id="modalDocTitle">Document</h3><p>DocuSign · Powered by Windward Properties</p></div>
+      <button class="modal-close" onclick="closeDocModal()">✕</button>
+    </div>
+    <div class="modal-preview">
+      <div style="text-align:center;color:var(--muted);font-size:0.8rem;margin-bottom:0.8rem;font-weight:600;">Document Preview</div>
+      <div class="doc-lines-wrap"><div class="doc-line"></div><div class="doc-line short"></div><div class="doc-line med"></div><div class="doc-line"></div><div class="doc-line short"></div><div class="doc-line"></div><div class="doc-line med"></div><div class="doc-line short"></div></div>
+    </div>
+    <div class="modal-sign-area">
+      <h4>Sign Below</h4>
+      <div class="sign-pad" id="signPad" onclick="applySignature()">
+        <span class="sig-placeholder" style="color:var(--muted);font-size:0.82rem;">Click here to apply your signature</span>
+        <span class="sig-text" id="sig-name-text">Your Name</span>
+        <button class="sig-clear" id="sigClear" onclick="event.stopPropagation();clearSignature()">Clear</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="ds-badge">Powered by <strong>DocuSign</strong> ✅</div>
+      <button class="modal-cancel" onclick="closeDocModal()">Cancel</button>
+      <button class="modal-confirm" id="confirmSignBtn" onclick="confirmSign()" disabled style="opacity:0.5;cursor:not-allowed;">Confirm & Sign</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stripe -->
+<script src="https://js.stripe.com/v3/" async></script>
+<script>
+// Wait for Stripe to load before initializing
+function initStripe() {
+  if (typeof Stripe !== 'undefined') {
+    window.stripeClient = Stripe('pk_test_51TBI2yGuXqa1XreEdrm0KGU1xIzDSZj6dnH1vMNkDdSSauRWQ6uAPOpCb565WVNpearUg550VztfX8JVBtBCbZ1m000KK5wqlD');
+  } else {
+    setTimeout(initStripe, 100);
+  }
+}
+initStripe();
+</script>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var supabase = window.supabase.createClient(
+  'https://ljlpnigkeiseehsfectn.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqbHBuaWdrZWlzZWVoc2ZlY3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNzMyMzgsImV4cCI6MjA5Mzc0OTIzOH0.jGgYuUyTZ7X6tZhDbX2BEPt7pokUIq9el5N2GsYkjnU',
+  {
+    auth: {
+      storage: window.sessionStorage,
+      persistSession: true,
+      autoRefreshToken: true
+    }
+  }
+);
+</script>
+
+<!-- App code lives in these files -->
+<script src="views.js"></script>
+<script src="app.js"></script>
+
+<!-- Loc card styles -->
+<style>
+.loc-card:hover { border-color: var(--sky) !important; box-shadow: 0 6px 20px rgba(37,99,168,0.12); }
+.loc-card.active-card { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(14,165,233,0.2); }
+</style>
+
+<!-- Google Maps -->
+<script src="maps.js"></script>
+
+</body>
+</html>
